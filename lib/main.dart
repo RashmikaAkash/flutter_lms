@@ -18,6 +18,7 @@ class FlutterLmsApp extends StatelessWidget {
       title: 'Flutter LMS',
       theme: ThemeData(
         useMaterial3: true,
+        fontFamily: 'Poppins',
         colorScheme: colorScheme,
         scaffoldBackgroundColor: colorScheme.surface,
 
@@ -432,10 +433,10 @@ class LoginHeader extends StatelessWidget {
             color: colorScheme.primaryContainer,
             borderRadius: BorderRadius.circular(22),
           ),
-          child: Icon(
-            Icons.school_rounded,
-            size: 44,
-            color: colorScheme.onPrimaryContainer,
+          child: Image.asset(
+            'assets/images/logo.png',
+            width: 84,
+            height: 84,
           ),
         ),
 
