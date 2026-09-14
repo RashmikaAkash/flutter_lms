@@ -141,13 +141,16 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleLogin() {
-    // Local validation only.
-    // Real authentication will be implemented later.
     if (!(_formKey.currentState?.validate() ?? false)) {
       return;
     }
 
-    _showMessage('Login UI validated');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HomeScreen(),
+      ),
+    );
   }
 
   void _handleForgotPassword() {
@@ -439,6 +442,45 @@ class PrimaryButton extends StatelessWidget {
                 size: 20,
               ),
             ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Flutter LMS'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.home_rounded,
+              size: 64,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Welcome to Flutter LMS',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: const Icon(Icons.arrow_back),
+              label: const Text('Back to Login'),
+            ),
           ],
         ),
       ),
