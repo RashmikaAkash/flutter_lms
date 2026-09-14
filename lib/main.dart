@@ -5,7 +5,9 @@ void main() {
 }
 
 class FlutterLmsApp extends StatelessWidget {
+
   const FlutterLmsApp({super.key});
+
 
   @override
   Widget build(BuildContext context) {
@@ -18,13 +20,77 @@ class FlutterLmsApp extends StatelessWidget {
       title: 'Flutter LMS',
       theme: ThemeData(
         useMaterial3: true,
+
+        // ----------------------------------------------------------
+        // App font
+        // ----------------------------------------------------------
         fontFamily: 'Poppins',
+
+        // ----------------------------------------------------------
+        // Color system
+        // ----------------------------------------------------------
         colorScheme: colorScheme,
+
         scaffoldBackgroundColor: colorScheme.surface,
 
+        // ----------------------------------------------------------
+        // Text styles
+        // ----------------------------------------------------------
+        textTheme: const TextTheme(
+          displaySmall: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w700,
+          ),
+          headlineSmall: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w700,
+          ),
+          titleLarge: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w600,
+          ),
+          titleMedium: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w600,
+          ),
+          bodyLarge: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w400,
+          ),
+          bodyMedium: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w400,
+          ),
+          bodySmall: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w400,
+          ),
+          labelLarge: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+
+        // ----------------------------------------------------------
+        // Input fields
+        // ----------------------------------------------------------
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+
+          labelStyle: TextStyle(
+            fontFamily: 'Poppins',
+            color: colorScheme.onSurfaceVariant,
+          ),
+
+          hintStyle: TextStyle(
+            fontFamily: 'Poppins',
+            color: colorScheme.onSurfaceVariant,
+          ),
+
+          prefixIconColor: colorScheme.onSurfaceVariant,
+
+          suffixIconColor: colorScheme.onSurfaceVariant,
 
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
@@ -66,24 +132,112 @@ class FlutterLmsApp extends StatelessWidget {
           ),
         ),
 
+        // ----------------------------------------------------------
+        // Elevated buttons
+        // ----------------------------------------------------------
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
+            minimumSize: const Size.fromHeight(52),
+
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
+
+            elevation: 0,
+
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
-            elevation: 0,
+
+            textStyle: const TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
 
+        // ----------------------------------------------------------
+        // Outlined buttons
+        // ----------------------------------------------------------
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(52),
+
+            foregroundColor: colorScheme.primary,
+
+            side: BorderSide(
+              color: colorScheme.outlineVariant,
+            ),
+
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
+
+            textStyle: const TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+
+        // ----------------------------------------------------------
+        // Text buttons
+        // ----------------------------------------------------------
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: colorScheme.primary,
+
+            textStyle: const TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+
+        // ----------------------------------------------------------
+        // Cards
+        // ----------------------------------------------------------
+        cardTheme: CardTheme(
+          elevation: 0,
+
+          color: colorScheme.surfaceContainerLow,
+
+          margin: EdgeInsets.zero,
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
             side: BorderSide(
               color: colorScheme.outlineVariant,
             ),
           ),
+        ),
+
+        // ----------------------------------------------------------
+        // AppBar
+        // ----------------------------------------------------------
+        appBarTheme: AppBarTheme(
+          centerTitle: true,
+
+          elevation: 0,
+
+          backgroundColor: colorScheme.surface,
+
+          foregroundColor: colorScheme.onSurface,
+
+          titleTextStyle: const TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+
+        // ----------------------------------------------------------
+        // Divider
+        // ----------------------------------------------------------
+        dividerTheme: DividerThemeData(
+          color: colorScheme.outlineVariant,
+          thickness: 1,
         ),
       ),
 
@@ -326,6 +480,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       label: 'Login',
                       icon: Icons.arrow_forward_rounded,
                       onPressed: _handleLogin,
+
                     ),
 
                     const SizedBox(height: 24),
@@ -546,20 +701,10 @@ class PrimaryButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-
+            Text(label),
             if (icon != null) ...[
               const SizedBox(width: 8),
-              Icon(
-                icon,
-                size: 20,
-              ),
+              Icon(icon, size: 20),
             ],
           ],
         ),
