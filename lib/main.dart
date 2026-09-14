@@ -24,14 +24,17 @@ class FlutterLmsApp extends StatelessWidget {
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none,
           ),
+
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none,
           ),
+
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(
@@ -39,6 +42,7 @@ class FlutterLmsApp extends StatelessWidget {
               width: 1.6,
             ),
           ),
+
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(
@@ -46,6 +50,7 @@ class FlutterLmsApp extends StatelessWidget {
               width: 1.2,
             ),
           ),
+
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(
@@ -53,6 +58,7 @@ class FlutterLmsApp extends StatelessWidget {
               width: 1.6,
             ),
           ),
+
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 16,
@@ -79,10 +85,15 @@ class FlutterLmsApp extends StatelessWidget {
           ),
         ),
       ),
+
       home: const LoginScreen(),
     );
   }
 }
+
+// ============================================================
+// LOGIN SCREEN
+// ============================================================
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -92,11 +103,14 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  // Form key
   final _formKey = GlobalKey<FormState>();
 
+  // Controllers
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  // Password visibility state
   bool _obscurePassword = true;
 
   @override
@@ -106,6 +120,10 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  // ------------------------------------------------------------
+  // Email validation
+  // ------------------------------------------------------------
+
   String? _validateEmail(String? value) {
     final email = value?.trim() ?? '';
 
@@ -113,8 +131,6 @@ class _LoginScreenState extends State<LoginScreen> {
       return 'Please enter your email';
     }
 
-    // Basic client-side email validation only.
-    // Final validation will be handled by the backend.
     final emailPattern = RegExp(
       r'^[\w.-]+@[\w-]+(\.[\w-]+)+$',
     );
@@ -125,6 +141,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return null;
   }
+
+  // ------------------------------------------------------------
+  // Password validation
+  // ------------------------------------------------------------
 
   String? _validatePassword(String? value) {
     final password = value ?? '';
@@ -140,11 +160,23 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
+  // ------------------------------------------------------------
+  // Login button
+  // ------------------------------------------------------------
+
   void _handleLogin() {
-    if (!(_formKey.currentState?.validate() ?? false)) {
+    // Hide keyboard
+    FocusScope.of(context).unfocus();
+
+    // Validate the form
+    final isValid = _formKey.currentState?.validate() ?? false;
+
+    if (!isValid) {
       return;
     }
 
+    // Temporary local login flow.
+    // Real API authentication will be implemented later.
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -153,18 +185,30 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  // ------------------------------------------------------------
+  // Forgot Password
+  // ------------------------------------------------------------
+
   void _handleForgotPassword() {
-    // Placeholder only.
     _showMessage('Password recovery will be added later');
   }
 
+  // ------------------------------------------------------------
+  // Guest access
+  // ------------------------------------------------------------
+
   void _handleGuestContinue() {
-    // Placeholder only.
     _showMessage('Guest access will be added later');
   }
 
+  // ------------------------------------------------------------
+  // SnackBar helper
+  // ------------------------------------------------------------
+
   void _showMessage(String message) {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -197,9 +241,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    // Header
                     const LoginHeader(),
 
                     const SizedBox(height: 36),
+
+                    // --------------------------------------------------
+                    // Email
+                    // --------------------------------------------------
 
                     LoginTextField(
                       controller: _emailController,
@@ -209,9 +258,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       validator: _validateEmail,
+
+                      // Move to password field when pressing next
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).nextFocus();
+                      },
                     ),
 
                     const SizedBox(height: 18),
+
+                    // --------------------------------------------------
+                    // Password
+                    // --------------------------------------------------
 
                     LoginTextField(
                       controller: _passwordController,
@@ -221,6 +279,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: _obscurePassword,
                       textInputAction: TextInputAction.done,
                       validator: _validatePassword,
+
                       suffixIcon: IconButton(
                         tooltip: _obscurePassword
                             ? 'Show password'
@@ -236,17 +295,31 @@ class _LoginScreenState extends State<LoginScreen> {
                           });
                         },
                       ),
+
+                      onFieldSubmitted: (_) {
+                        _handleLogin();
+                      },
                     ),
+
+                    // --------------------------------------------------
+                    // Forgot Password
+                    // --------------------------------------------------
 
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: _handleForgotPassword,
-                        child: const Text('Forgot Password?'),
+                        child: const Text(
+                          'Forgot Password?',
+                        ),
                       ),
                     ),
 
                     const SizedBox(height: 8),
+
+                    // --------------------------------------------------
+                    // Login Button
+                    // --------------------------------------------------
 
                     PrimaryButton(
                       label: 'Login',
@@ -256,9 +329,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 24),
 
+                    // --------------------------------------------------
+                    // OR divider
+                    // --------------------------------------------------
+
                     _buildOrDivider(context),
 
                     const SizedBox(height: 20),
+
+                    // --------------------------------------------------
+                    // Guest button
+                    // --------------------------------------------------
 
                     OutlinedButton(
                       onPressed: _handleGuestContinue,
@@ -267,10 +348,16 @@ class _LoginScreenState extends State<LoginScreen> {
                           vertical: 14,
                         ),
                       ),
-                      child: const Text('Continue as Guest'),
+                      child: const Text(
+                        'Continue as Guest',
+                      ),
                     ),
 
                     const SizedBox(height: 32),
+
+                    // --------------------------------------------------
+                    // Supported roles
+                    // --------------------------------------------------
 
                     Text(
                       'Student  •  Instructor  •  Admin',
@@ -297,10 +384,15 @@ class _LoginScreenState extends State<LoginScreen> {
     return Row(
       children: [
         Expanded(
-          child: Divider(color: color),
+          child: Divider(
+            color: color,
+          ),
         ),
+
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 12,
+          ),
           child: Text(
             'OR',
             style: theme.textTheme.labelMedium?.copyWith(
@@ -308,13 +400,20 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
+
         Expanded(
-          child: Divider(color: color),
+          child: Divider(
+            color: color,
+          ),
         ),
       ],
     );
   }
 }
+
+// ============================================================
+// LOGIN HEADER
+// ============================================================
 
 class LoginHeader extends StatelessWidget {
   const LoginHeader({super.key});
@@ -364,6 +463,10 @@ class LoginHeader extends StatelessWidget {
   }
 }
 
+// ============================================================
+// REUSABLE LOGIN TEXT FIELD
+// ============================================================
+
 class LoginTextField extends StatelessWidget {
   const LoginTextField({
     super.key,
@@ -376,6 +479,7 @@ class LoginTextField extends StatelessWidget {
     this.textInputAction,
     this.validator,
     this.suffixIcon,
+    this.onFieldSubmitted,
   });
 
   final TextEditingController controller;
@@ -387,16 +491,25 @@ class LoginTextField extends StatelessWidget {
   final TextInputAction? textInputAction;
   final String? Function(String?)? validator;
   final Widget? suffixIcon;
+  final ValueChanged<String>? onFieldSubmitted;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+
       obscureText: obscureText,
+
       keyboardType: keyboardType,
+
       textInputAction: textInputAction,
+
       validator: validator,
+
       autovalidateMode: AutovalidateMode.onUserInteraction,
+
+      onFieldSubmitted: onFieldSubmitted,
+
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
@@ -406,6 +519,10 @@ class LoginTextField extends StatelessWidget {
     );
   }
 }
+
+// ============================================================
+// PRIMARY BUTTON
+// ============================================================
 
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
@@ -435,6 +552,7 @@ class PrimaryButton extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
+
             if (icon != null) ...[
               const SizedBox(width: 8),
               Icon(
@@ -449,39 +567,68 @@ class PrimaryButton extends StatelessWidget {
   }
 }
 
+// ============================================================
+// TEMPORARY HOME SCREEN
+// ============================================================
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Flutter LMS'),
+        title: const Text(
+          'Flutter LMS',
+        ),
       ),
+
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.home_rounded,
-              size: 64,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Welcome to Flutter LMS',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.home_rounded,
+                size: 64,
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.arrow_back),
-              label: const Text('Back to Login'),
-            ),
-          ],
+
+              const SizedBox(height: 16),
+
+              Text(
+                'Welcome to Flutter LMS',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                'Login validation successful',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium,
+              ),
+
+              const SizedBox(height: 24),
+
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: const Icon(
+                  Icons.arrow_back,
+                ),
+                label: const Text(
+                  'Back to Login',
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
