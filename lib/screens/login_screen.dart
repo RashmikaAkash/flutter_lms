@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import '../widgets/login_header.dart';
 import '../widgets/login_text_field.dart';
 import '../widgets/primary_button.dart';
-import 'home_screen.dart';
+// import 'home_screen.dart';
+// import 'api_test_screen.dart';
+import '../core/auth/auth_service.dart';
+import '../core/errors/api_exception.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,6 +19,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  final AuthService _authService = AuthService();
+
+  bool _isLoading = false;
 
   bool _obscurePassword = true;
 
@@ -58,23 +65,73 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
-  void _handleLogin() {
+  Future<void> _handleLogin() async {
     FocusScope.of(context).unfocus();
 
     final isValid = _formKey.currentState?.validate() ?? false;
 
-    if (!isValid) {
+    if (!isValid || _isLoading) {
       return;
     }
 
-    // Temporary local flow.
-    // Real API authentication will be added later.
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const HomeScreen(),
-      ),
-    );
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final role = await _authService.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      switch (role) {
+        case 'STUDENT':
+          Navigator.pushReplacementNamed(
+            context,
+            '/student-dashboard',
+          );
+          break;
+
+        case 'INSTRUCTOR':
+          Navigator.pushReplacementNamed(
+            context,
+            '/instructor-dashboard',
+          );
+          break;
+
+        case 'ADMIN':
+          Navigator.pushReplacementNamed(
+            context,
+            '/admin-dashboard',
+          );
+          break;
+
+        default:
+          _showMessage('Unknown user role: $role');
+      }
+    } on ApiException catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      _showMessage(error.message);
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      _showMessage('Login failed. Please try again.');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   void _handleForgotPassword() {
@@ -179,9 +236,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 8),
 
                     PrimaryButton(
-                      label: 'Login',
+                      label: _isLoading ? 'Signing in...' : 'Login',
                       icon: Icons.arrow_forward_rounded,
-                      onPressed: _handleLogin,
+                      onPressed: _isLoading ? null : _handleLogin,
                     ),
 
                     const SizedBox(height: 24),
@@ -218,6 +275,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: _handleGuestContinue,
                       child: const Text('Continue as Guest'),
                     ),
+
+                    const SizedBox(height: 12),
 
                     const SizedBox(height: 32),
 

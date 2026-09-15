@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'student_dashboard.dart';
+import 'login_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -50,7 +50,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => const StudentDashboard(),
+          builder: (_) => const LoginScreen(),
         ),
       );
     }

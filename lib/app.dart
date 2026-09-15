@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-// import 'screens/login_screen.dart';
-// import 'package:flutter/material.dart';
 import 'screens/splash_screen.dart';
+import 'screens/student_dashboard.dart';
+import 'screens/instructor_dashboard.dart';
+import 'screens/admin_dashboard.dart';
 
 class FlutterLmsApp extends StatelessWidget {
   const FlutterLmsApp({super.key});
@@ -208,6 +209,11 @@ class FlutterLmsApp extends StatelessWidget {
           thickness: 1,
         ),
       ),
+      routes: {
+        '/student-dashboard': (context) => const StudentDashboard(),
+        '/instructor-dashboard': (context) => const InstructorDashboard(),
+        '/admin-dashboard': (context) => const AdminDashboard(),
+      },
       home: const SplashScreen(),
     );
   }
