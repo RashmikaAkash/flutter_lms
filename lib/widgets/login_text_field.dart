@@ -13,6 +13,8 @@ class LoginTextField extends StatelessWidget {
     this.validator,
     this.suffixIcon,
     this.onFieldSubmitted,
+    this.enabled = true,
+    this.readOnly = false,
   });
 
   final TextEditingController controller;
@@ -25,6 +27,8 @@ class LoginTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final Widget? suffixIcon;
   final ValueChanged<String>? onFieldSubmitted;
+  final bool enabled;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +38,10 @@ class LoginTextField extends StatelessWidget {
       keyboardType: keyboardType,
       textInputAction: textInputAction,
       validator: validator,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
       onFieldSubmitted: onFieldSubmitted,
+      enabled: enabled,
+      readOnly: readOnly,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
