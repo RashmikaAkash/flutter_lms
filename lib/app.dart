@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-
-import 'screens/login_screen.dart';
+// import 'screens/login_screen.dart';
+// import 'package:flutter/material.dart';
+import 'screens/splash_screen.dart';
 
 class FlutterLmsApp extends StatelessWidget {
   const FlutterLmsApp({super.key});
@@ -207,7 +208,7 @@ class FlutterLmsApp extends StatelessWidget {
           thickness: 1,
         ),
       ),
-      home: const LoginScreen(),
+      home: const SplashScreen(),
     );
   }
 }
