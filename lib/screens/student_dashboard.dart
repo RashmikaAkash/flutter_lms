@@ -1,86 +1,146 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/dashboard_card.dart';
+import '../widgets/dashboard_nav_card.dart';
+import '../widgets/section_header.dart';
+
 class StudentDashboard extends StatelessWidget {
   const StudentDashboard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const RoleDashboardScreen(
-      title: 'Student Dashboard',
-      role: 'STUDENT',
-      icon: Icons.school_rounded,
-    );
-  }
-}
-
-class RoleDashboardScreen extends StatelessWidget {
-  const RoleDashboardScreen({
-    super.key,
-    required this.title,
-    required this.role,
-    required this.icon,
-  });
-
-  final String title;
-  final String role;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: const Text('Student Dashboard'),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.notifications_outlined),
+            tooltip: 'Notifications',
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.account_circle_outlined),
+            tooltip: 'Profile',
+          ),
+        ],
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Welcome back, Student!',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Continue your learning journey.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              const SizedBox(height: 20),
+
+              GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                childAspectRatio: 1.45,
                 children: [
-                  Icon(
-                    icon,
-                    size: 72,
-                    color: colorScheme.primary,
+                  DashboardCard(
+                    title: 'Enrolled Courses',
+                    value: '8',
+                    icon: Icons.menu_book_outlined,
+                    onTap: () {},
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                  DashboardCard(
+                    title: 'Completed',
+                    value: '3',
+                    icon: Icons.check_circle_outline,
+                    onTap: () {},
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    '$role interface placeholder',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
+                  DashboardCard(
+                    title: 'Quizzes',
+                    value: '12',
+                    icon: Icons.quiz_outlined,
+                    onTap: () {},
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Dashboard features will be implemented in later tasks.',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodySmall,
-                  ),
-                  const SizedBox(height: 24),
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.arrow_back),
-                    label: const Text('Back'),
+                  DashboardCard(
+                    title: 'Assignments',
+                    value: '5',
+                    icon: Icons.assignment_outlined,
+                    onTap: () {},
                   ),
                 ],
               ),
-            ),
+
+              const SizedBox(height: 24),
+
+              const SectionHeader(
+                title: 'Continue Learning',
+                actionLabel: 'View All',
+              ),
+
+              const SizedBox(height: 10),
+
+              DashboardNavCard(
+                title: 'Flutter Mobile Development',
+                subtitle: 'Continue from Lesson 6',
+                icon: Icons.phone_android,
+                onTap: () {},
+              ),
+
+              const SizedBox(height: 10),
+
+              DashboardNavCard(
+                title: 'Dart Programming',
+                subtitle: 'Continue from Module 3',
+                icon: Icons.code,
+                onTap: () {},
+              ),
+
+              const SizedBox(height: 24),
+
+              const SectionHeader(
+                title: 'Quick Access',
+                actionLabel: 'View All',
+              ),
+
+              const SizedBox(height: 10),
+
+              DashboardNavCard(
+                title: 'My Courses',
+                subtitle: 'View enrolled courses',
+                icon: Icons.library_books_outlined,
+                onTap: () {},
+              ),
+
+              DashboardNavCard(
+                title: 'Quizzes',
+                subtitle: 'View available quizzes',
+                icon: Icons.quiz_outlined,
+                onTap: () {},
+              ),
+
+              DashboardNavCard(
+                title: 'Assignments',
+                subtitle: 'View and submit assignments',
+                icon: Icons.assignment_outlined,
+                onTap: () {},
+              ),
+
+              DashboardNavCard(
+                title: 'Notifications',
+                subtitle: 'Check recent notifications',
+                icon: Icons.notifications_outlined,
+                onTap: () {},
+              ),
+            ],
           ),
         ),
       ),
