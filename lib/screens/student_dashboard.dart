@@ -5,9 +5,15 @@ import '../widgets/section_header.dart';
 import '../core/auth/auth_service.dart';
 import '../core/errors/api_exception.dart';
 
-class StudentDashboard extends StatelessWidget {
+
+class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
 
+  @override
+  State<StudentDashboard> createState() => _StudentDashboardState();
+}
+
+class _StudentDashboardState extends State<StudentDashboard> {
 
   Future<void> _handleLogout(BuildContext context) async {
     final confirmed = await showDialog<bool>(
