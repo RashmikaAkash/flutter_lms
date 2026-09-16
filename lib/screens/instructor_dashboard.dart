@@ -1,11 +1,111 @@
 import 'package:flutter/material.dart';
 
+import '../core/auth/auth_service.dart';
+import '../core/errors/api_exception.dart';
 import '../widgets/dashboard_card.dart';
 import '../widgets/dashboard_nav_card.dart';
 import '../widgets/section_header.dart';
 
-class InstructorDashboard extends StatelessWidget {
+class InstructorDashboard extends StatefulWidget {
   const InstructorDashboard({super.key});
+
+  @override
+  State<InstructorDashboard> createState() =>
+      _InstructorDashboardState();
+}
+
+class _InstructorDashboardState extends State<InstructorDashboard> {
+  final AuthService _authService = AuthService();
+
+  bool _isLoggingOut = false;
+
+  Future<void> _handleLogout() async {
+    if (_isLoggingOut) {
+      return;
+    }
+
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text(
+            'Are you sure you want to logout?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogout != true || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _isLoggingOut = true;
+    });
+
+    try {
+      await _authService.logout();
+
+      if (!mounted) {
+        return;
+      }
+
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/login',
+            (route) => false,
+      );
+    } on ApiException catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      _showMessage(error.message);
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      _showMessage(
+        'Logout failed. Please try again.',
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoggingOut = false;
+        });
+      }
+    }
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
+      );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +123,19 @@ class InstructorDashboard extends StatelessWidget {
             icon: const Icon(Icons.account_circle_outlined),
             tooltip: 'Profile',
           ),
+          IconButton(
+            onPressed: _isLoggingOut ? null : _handleLogout,
+            icon: _isLoggingOut
+                ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+              ),
+            )
+                : const Icon(Icons.logout_outlined),
+            tooltip: 'Logout',
+          ),
         ],
       ),
       body: SafeArea(
@@ -33,7 +146,8 @@ class InstructorDashboard extends StatelessWidget {
             children: [
               Text(
                 'Welcome back, Instructor!',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                style:
+                Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),

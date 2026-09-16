@@ -4,6 +4,9 @@ import 'screens/student_dashboard.dart';
 import 'screens/instructor_dashboard.dart';
 import 'screens/admin_dashboard.dart';
 import 'screens/login_screen.dart';
+import 'screens/student_registration_screen.dart';
+import 'screens/email_verification_screen.dart';
+import 'screens/instructor_registration_screen.dart';
 
 class FlutterLmsApp extends StatelessWidget {
   const FlutterLmsApp({super.key});
@@ -212,6 +215,18 @@ class FlutterLmsApp extends StatelessWidget {
       ),
       routes: {
         '/login': (context) => const LoginScreen(),
+        '/student-registration': (context) => const StudentRegistrationScreen(),
+        '/instructor-registration': (context) => const InstructorRegistrationScreen(),
+        '/email-verification': (context) {
+          final email =
+          ModalRoute.of(context)?.settings.arguments as String?;
+
+          if (email == null || email.isEmpty) {
+            return const LoginScreen();
+          }
+
+          return EmailVerificationScreen(email: email);
+        },
         '/student-dashboard': (context) => const StudentDashboard(),
         '/instructor-dashboard': (context) => const InstructorDashboard(),
         '/admin-dashboard': (context) => const AdminDashboard(),
