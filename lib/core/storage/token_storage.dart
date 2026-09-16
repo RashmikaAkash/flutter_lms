@@ -9,6 +9,7 @@ class TokenStorage {
   static const String _accessTokenKey = 'accessToken';
   static const String _refreshTokenKey = 'refreshToken';
   static const String _roleKey = 'role';
+  static const String _onboardingCompletedKey = 'onboardingCompleted';
 
   Future<void> saveAccessToken(String token) async {
     await _storage.write(
@@ -53,6 +54,21 @@ class TokenStorage {
       saveRefreshToken(refreshToken),
       saveRole(role),
     ]);
+  }
+
+  Future<void> saveOnboardingCompleted() async {
+    await _storage.write(
+      key: _onboardingCompletedKey,
+      value: 'true',
+    );
+  }
+
+  Future<bool> isOnboardingCompleted() async {
+    final value = await _storage.read(
+      key: _onboardingCompletedKey,
+    );
+
+    return value == 'true';
   }
 
   Future<void> clearSession() async {
