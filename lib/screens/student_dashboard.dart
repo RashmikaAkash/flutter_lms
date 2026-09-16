@@ -73,6 +73,74 @@ class StudentDashboard extends StatelessWidget {
       );
     }
   }
+
+  Future<void> _handleLogoutAll(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Logout from all devices'),
+          content: const Text(
+            'This will sign you out from all active sessions. '
+                'Do you want to continue?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: const Text('Logout All'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !context.mounted) {
+      return;
+    }
+
+    try {
+      await AuthService().logoutAll();
+
+      if (!context.mounted) {
+        return;
+      }
+
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/login',
+            (route) => false,
+      );
+    } on ApiException catch (error) {
+      if (!context.mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message),
+        ),
+      );
+    } catch (_) {
+      if (!context.mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Unable to logout from all devices. Please try again.',
+          ),
+        ),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,6 +156,26 @@ class StudentDashboard extends StatelessWidget {
             onPressed: () {},
             icon: const Icon(Icons.account_circle_outlined),
             tooltip: 'Profile',
+          ),
+          PopupMenuButton<String>(
+            tooltip: 'Account actions',
+            onSelected: (value) {
+              if (value == 'logout_all') {
+                _handleLogoutAll(context);
+              }
+            },
+            itemBuilder: (context) => const [
+              PopupMenuItem<String>(
+                value: 'logout_all',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout_outlined),
+                    SizedBox(width: 12),
+                    Text('Logout from all devices'),
+                  ],
+                ),
+              ),
+            ],
           ),
           IconButton(
             onPressed: () => _handleLogout(context),

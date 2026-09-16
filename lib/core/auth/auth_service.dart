@@ -224,6 +224,20 @@ class AuthService {
       await _tokenStorage.clearSession();
     }
   }
+  // ============================================================
+  // LOGOUT ALL
+  // ============================================================
+
+  Future<void> logoutAll() async {
+    try {
+      await _apiClient.post(
+        '/api/v1/auth/logout-all',
+        requiresAuth: true,
+      );
+    } finally {
+      await _tokenStorage.clearSession();
+    }
+  }
 
   // ============================================================
   // RESPONSE MESSAGE HELPER

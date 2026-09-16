@@ -277,30 +277,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           : () {
                         Navigator.pushNamed(
                           context,
-                          '/student-registration',
+                          '/registration-role',
                         );
                       },
                       icon: const Icon(Icons.person_add_alt_1),
-                      label: const Text('Create Student Account'),
+                      label: const Text('Create an Account'),
                     ),
 
                     const SizedBox(height: 12),
-
-                    const SizedBox(height: 12),
-
-                    OutlinedButton.icon(
-                      onPressed: _isLoading
-                          ? null
-                          : () {
-                        Navigator.pushNamed(
-                          context,
-                          '/instructor-registration',
-                        );
-                      },
-                      icon: const Icon(Icons.school_outlined),
-                      label: const Text('Create Instructor Account'),
-                    ),
-
                     OutlinedButton(
                       onPressed: _handleGuestContinue,
                       child: const Text('Continue as Guest'),

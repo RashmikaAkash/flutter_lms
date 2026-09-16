@@ -7,6 +7,7 @@ import 'screens/login_screen.dart';
 import 'screens/student_registration_screen.dart';
 import 'screens/email_verification_screen.dart';
 import 'screens/instructor_registration_screen.dart';
+import 'screens/registration_role_screen.dart';
 
 class FlutterLmsApp extends StatelessWidget {
   const FlutterLmsApp({super.key});
@@ -215,6 +216,7 @@ class FlutterLmsApp extends StatelessWidget {
       ),
       routes: {
         '/login': (context) => const LoginScreen(),
+        '/registration-role': (context) => const RegistrationRoleScreen(),
         '/student-registration': (context) => const StudentRegistrationScreen(),
         '/instructor-registration': (context) => const InstructorRegistrationScreen(),
         '/email-verification': (context) {
