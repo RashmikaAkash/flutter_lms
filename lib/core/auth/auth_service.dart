@@ -211,6 +211,96 @@ class AuthService {
   }
 
   // ============================================================
+  // FORGOT PASSWORD
+  // ============================================================
+
+  Future<String> forgotPassword({
+    required String email,
+  }) async {
+    final response = await _apiClient.post(
+      '/api/v1/auth/forgot-password',
+      data: {
+        'email': email,
+      },
+      requiresAuth: false,
+    );
+
+    return _extractMessage(
+      response.data,
+      fallback: 'Password-reset OTP sent successfully',
+    );
+  }
+
+  // ============================================================
+  // VERIFY PASSWORD RESET OTP
+  // ============================================================
+
+  Future<String> verifyPasswordResetOtp({
+    required String email,
+    required String otp,
+  }) async {
+    final response = await _apiClient.post(
+      '/api/v1/auth/verify-password-reset-otp',
+      data: {
+        'email': email,
+        'otp': otp,
+      },
+      requiresAuth: false,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid server response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Password reset data is missing',
+      );
+    }
+
+    final resetToken = data['resetToken'];
+
+    if (resetToken is! String || resetToken.isEmpty) {
+      throw const ApiException(
+        message: 'Password reset token is missing',
+      );
+    }
+
+    return resetToken;
+  }
+
+  // ============================================================
+  // RESET PASSWORD
+  // ============================================================
+
+  Future<String> resetPassword({
+    required String resetToken,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    final response = await _apiClient.post(
+      '/api/v1/auth/reset-password',
+      data: {
+        'resetToken': resetToken,
+        'newPassword': newPassword,
+        'confirmPassword': confirmPassword,
+      },
+      requiresAuth: false,
+    );
+
+    return _extractMessage(
+      response.data,
+      fallback: 'Password reset successfully. Please sign in again.',
+    );
+  }
+
+  // ============================================================
   // LOGOUT
   // ============================================================
 
@@ -224,6 +314,7 @@ class AuthService {
       await _tokenStorage.clearSession();
     }
   }
+
   // ============================================================
   // LOGOUT ALL
   // ============================================================

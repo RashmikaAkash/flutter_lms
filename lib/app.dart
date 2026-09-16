@@ -8,6 +8,9 @@ import 'screens/student_registration_screen.dart';
 import 'screens/email_verification_screen.dart';
 import 'screens/instructor_registration_screen.dart';
 import 'screens/registration_role_screen.dart';
+import 'screens/forgot_password_screen.dart';
+import 'screens/password_reset_otp_screen.dart';
+import 'screens/reset_password_screen.dart';
 
 class FlutterLmsApp extends StatelessWidget {
   const FlutterLmsApp({super.key});
@@ -217,8 +220,11 @@ class FlutterLmsApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/registration-role': (context) => const RegistrationRoleScreen(),
-        '/student-registration': (context) => const StudentRegistrationScreen(),
-        '/instructor-registration': (context) => const InstructorRegistrationScreen(),
+        '/student-registration': (context) =>
+        const StudentRegistrationScreen(),
+        '/instructor-registration': (context) =>
+        const InstructorRegistrationScreen(),
+
         '/email-verification': (context) {
           final email =
           ModalRoute.of(context)?.settings.arguments as String?;
@@ -229,6 +235,43 @@ class FlutterLmsApp extends StatelessWidget {
 
           return EmailVerificationScreen(email: email);
         },
+
+        // ------------------------------------------------------------
+        // PASSWORD RECOVERY
+        // ------------------------------------------------------------
+        '/forgot-password': (context) =>
+        const ForgotPasswordScreen(),
+
+        '/password-reset-otp': (context) {
+          final email =
+          ModalRoute.of(context)?.settings.arguments as String?;
+
+          if (email == null || email.isEmpty) {
+            return const LoginScreen();
+          }
+
+          return PasswordResetOtpScreen(email: email);
+        },
+
+        '/reset-password': (context) {
+          final arguments =
+              ModalRoute.of(context)?.settings.arguments;
+
+          if (arguments is! Map<String, dynamic>) {
+            return const LoginScreen();
+          }
+
+          final resetToken = arguments['resetToken'];
+
+          if (resetToken is! String || resetToken.isEmpty) {
+            return const LoginScreen();
+          }
+
+          return ResetPasswordScreen(
+            resetToken: resetToken,
+          );
+        },
+
         '/student-dashboard': (context) => const StudentDashboard(),
         '/instructor-dashboard': (context) => const InstructorDashboard(),
         '/admin-dashboard': (context) => const AdminDashboard(),

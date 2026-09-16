@@ -51,6 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
+
+
   String? _validatePassword(String? value) {
     final password = value ?? '';
 
@@ -135,7 +137,14 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleForgotPassword() {
-    _showMessage('Password recovery will be added later');
+    if (_isLoading) {
+      return;
+    }
+
+    Navigator.pushNamed(
+      context,
+      '/forgot-password',
+    );
   }
 
   void _handleGuestContinue() {
