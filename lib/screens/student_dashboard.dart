@@ -153,7 +153,12 @@ class StudentDashboard extends StatelessWidget {
             tooltip: 'Notifications',
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                '/profile',
+              );
+            },
             icon: const Icon(Icons.account_circle_outlined),
             tooltip: 'Profile',
           ),
