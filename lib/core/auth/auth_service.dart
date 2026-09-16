@@ -72,4 +72,15 @@ class AuthService {
 
     return role;
   }
+
+  Future<void> logout() async {
+    try {
+      await _apiClient.post(
+        '/api/v1/auth/logout',
+        requiresAuth: true,
+      );
+    } finally {
+      await _tokenStorage.clearSession();
+    }
+  }
 }

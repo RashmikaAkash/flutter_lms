@@ -1,12 +1,78 @@
 import 'package:flutter/material.dart';
-
 import '../widgets/dashboard_card.dart';
 import '../widgets/dashboard_nav_card.dart';
 import '../widgets/section_header.dart';
+import '../core/auth/auth_service.dart';
+import '../core/errors/api_exception.dart';
 
 class StudentDashboard extends StatelessWidget {
   const StudentDashboard({super.key});
 
+
+  Future<void> _handleLogout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text(
+            'Are you sure you want to logout?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !context.mounted) {
+      return;
+    }
+
+    try {
+      await AuthService().logout();
+
+      if (!context.mounted) {
+        return;
+      }
+
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/login',
+            (route) => false,
+      );
+    } on ApiException catch (error) {
+      if (!context.mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message),
+        ),
+      );
+    } catch (_) {
+      if (!context.mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Logout failed. Please try again.'),
+        ),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,6 +88,11 @@ class StudentDashboard extends StatelessWidget {
             onPressed: () {},
             icon: const Icon(Icons.account_circle_outlined),
             tooltip: 'Profile',
+          ),
+          IconButton(
+            onPressed: () => _handleLogout(context),
+            icon: const Icon(Icons.logout_outlined),
+            tooltip: 'Logout',
           ),
         ],
       ),
