@@ -9,6 +9,10 @@ class ApiException implements Exception {
   final int? statusCode;
   final String? code;
 
+  bool get isUnauthorized => statusCode == 401;
+
+  bool get isForbidden => statusCode == 403;
+
   factory ApiException.fromStatusCode({
     required int statusCode,
     String? message,

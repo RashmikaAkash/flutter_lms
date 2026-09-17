@@ -194,6 +194,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         return;
       }
 
+      if (error.isUnauthorized) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/login',
+              (route) => false,
+        );
+        return;
+      }
+
+      if (error.isForbidden) {
+        _showMessage(
+          'You do not have permission to update your profile.',
+        );
+        return;
+      }
+
       _showMessage(error.message);
     } catch (_) {
       if (!mounted) {

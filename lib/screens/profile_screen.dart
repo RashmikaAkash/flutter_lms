@@ -154,12 +154,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         );
       }
-    } on ApiException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message)),
-        );
+    } on ApiException catch (error) {
+      if (!mounted) {
+        return;
       }
+
+      if (error.isUnauthorized) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/login',
+              (route) => false,
+        );
+        return;
+      }
+
+      final message = error.isForbidden
+          ? 'You do not have permission to remove your profile image.'
+          : error.message;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -197,8 +213,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         return;
       }
 
+      if (error.isUnauthorized) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/login',
+              (route) => false,
+        );
+        return;
+      }
+
       setState(() {
-        _errorMessage = error.message;
+        _errorMessage = error.isForbidden
+            ? 'You do not have permission to view this profile.'
+            : error.message;
         _isLoading = false;
       });
     } catch (_) {
