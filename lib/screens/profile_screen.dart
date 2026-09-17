@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import '../core/errors/api_exception.dart';
 import '../core/models/profile/full_user_profile.dart';
 import '../core/models/profile/profile_service.dart';
-import '../core/models/profile/user_profile.dart';
 import 'edit_profile_screen.dart';
+import 'package:image_picker/image_picker.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,6 +16,9 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final ProfileService _profileService = ProfileService();
 
+  final ImagePicker _imagePicker = ImagePicker();
+  bool _isImageLoading = false;
+
   FullUserProfile? _profile;
   bool _isLoading = true;
   String? _errorMessage;
@@ -23,6 +27,152 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _loadProfile();
+  }
+
+  Future<void> _handlePickProfileImage() async {
+    try {
+      final pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+
+      if (pickedFile == null) return;
+
+      setState(() {
+        _isImageLoading = true;
+      });
+
+      await _profileService.uploadProfileImage(
+        filePath: pickedFile.path,
+      );
+
+      await _loadProfile();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile image updated successfully'),
+          ),
+        );
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update profile image: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isImageLoading = false;
+        });
+      }
+    }
+  }
+
+  void _showProfileImageOptions() {
+    final hasImage =
+        _profile?.user.profileImageUrl != null &&
+            _profile!.user.profileImageUrl!.isNotEmpty;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: const Text('Change profile photo'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _handlePickProfileImage();
+                },
+              ),
+              if (hasImage)
+                ListTile(
+                  leading: const Icon(Icons.delete_outline),
+                  title: const Text('Remove profile photo'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _handleDeleteProfileImage();
+                  },
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _handleDeleteProfileImage() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Remove Profile Photo'),
+          content: const Text(
+            'Are you sure you want to remove your profile photo?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Remove'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      setState(() {
+        _isImageLoading = true;
+      });
+
+      await _profileService.deleteProfileImage();
+
+      await _loadProfile();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile image removed successfully'),
+          ),
+        );
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to remove profile image: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isImageLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _loadProfile() async {
@@ -135,25 +285,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = _profile!.user;
     final imageUrl = user.profileImageUrl;
 
-    if (imageUrl != null && imageUrl.isNotEmpty) {
-      return CircleAvatar(
-        radius: 48,
-        backgroundImage: NetworkImage(imageUrl),
-      );
-    }
+    return GestureDetector(
+      onTap: _showProfileImageOptions,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (imageUrl != null && imageUrl.isNotEmpty)
+            CircleAvatar(
+              radius: 48,
+              backgroundImage: NetworkImage(imageUrl),
+            )
+          else
+            Builder(
+              builder: (context) {
+                final initials = user.firstName.isNotEmpty
+                    ? user.firstName[0].toUpperCase()
+                    : '?';
 
-    final initials = user.firstName.isNotEmpty
-        ? user.firstName[0].toUpperCase()
-        : '?';
+                return CircleAvatar(
+                  radius: 48,
+                  child: Text(
+                    initials,
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                );
+              },
+            ),
 
-    return CircleAvatar(
-      radius: 48,
-      child: Text(
-        initials,
-        style: const TextStyle(
-          fontSize: 32,
-          fontWeight: FontWeight.w700,
-        ),
+          if (_isImageLoading)
+            const CircleAvatar(
+              radius: 48,
+              backgroundColor: Colors.black45,
+              child: SizedBox(
+                width: 28,
+                height: 28,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                ),
+              ),
+            ),
+
+          Positioned(
+            right: 0,
+            bottom: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Theme.of(context).colorScheme.primary,
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.surface,
+                  width: 2,
+                ),
+              ),
+              child: IconButton(
+                onPressed: _isImageLoading
+                    ? null
+                    : _showProfileImageOptions,
+                icon: const Icon(
+                  Icons.camera_alt_outlined,
+                  size: 18,
+                ),
+                color: Theme.of(context).colorScheme.onPrimary,
+                tooltip: 'Change profile photo',
+                padding: const EdgeInsets.all(8),
+                constraints: const BoxConstraints(),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -217,6 +419,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+
+
   Widget _buildProfileContent() {
     final user = _profile!.user;
     final student = _profile!.profile;
@@ -255,16 +459,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 OutlinedButton.icon(
                   onPressed: () async {
-                    final updatedProfile = await Navigator.push<UserProfile>(
+                    final result = await Navigator.push<EditProfileResult>(
                       context,
                       MaterialPageRoute(
                         builder: (_) => EditProfileScreen(
                           profile: user,
+                          studentProfile: _profile!.profile,
                         ),
                       ),
                     );
 
-                    if (updatedProfile == null || !mounted) {
+                    if (result == null || !mounted) {
                       return;
                     }
 

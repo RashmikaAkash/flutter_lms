@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/errors/api_exception.dart';
+import '../core/models/profile/student_profile.dart';
 import '../core/models/profile/user_profile.dart';
 import '../core/models/profile/profile_service.dart';
 import '../widgets/login_text_field.dart';
@@ -10,9 +11,11 @@ class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({
     super.key,
     required this.profile,
+    this.studentProfile,
   });
 
   final UserProfile profile;
+  final StudentProfile? studentProfile;
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -24,6 +27,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
   late final TextEditingController _bioController;
+  late final TextEditingController _educationLevelController;
+  late final TextEditingController _learningGoalsController;
 
   final ProfileService _profileService = ProfileService();
 
@@ -44,6 +49,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _bioController = TextEditingController(
       text: widget.profile.bio ?? '',
     );
+
+    _educationLevelController = TextEditingController(
+      text: widget.studentProfile?.educationLevel ?? '',
+    );
+
+    _learningGoalsController = TextEditingController(
+      text: widget.studentProfile?.learningGoals.join(', ') ?? '',
+    );
   }
 
   @override
@@ -51,13 +64,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _bioController.dispose();
+    _educationLevelController.dispose();
+    _learningGoalsController.dispose();
     super.dispose();
   }
 
   String? _validateFirstName(String? value) {
-    final firstName = value?.trim() ?? '';
-
-    if (firstName.isEmpty) {
+    if ((value?.trim() ?? '').isEmpty) {
       return 'Please enter your first name';
     }
 
@@ -65,9 +78,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   String? _validateLastName(String? value) {
-    final lastName = value?.trim() ?? '';
-
-    if (lastName.isEmpty) {
+    if ((value?.trim() ?? '').isEmpty) {
       return 'Please enter your last name';
     }
 
@@ -82,6 +93,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
 
     return null;
+  }
+
+  String? _validateEducationLevel(String? value) {
+    if (widget.studentProfile == null) {
+      return null;
+    }
+
+    if ((value?.trim() ?? '').isEmpty) {
+      return 'Please enter your education level';
+    }
+
+    return null;
+  }
+
+  String? _validateLearningGoals(String? value) {
+    if (widget.studentProfile == null) {
+      return null;
+    }
+
+    if ((value?.trim() ?? '').isEmpty) {
+      return 'Please enter at least one learning goal';
+    }
+
+    return null;
+  }
+
+  List<String> _getLearningGoals() {
+    return _learningGoalsController.text
+        .split(',')
+        .map((goal) => goal.trim())
+        .where((goal) => goal.isNotEmpty)
+        .toList();
   }
 
   Future<void> _handleSave() async {
@@ -102,11 +145,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     });
 
     try {
-      final updatedProfile = await _profileService.updateUserProfile(
+      // ----------------------------------------------------------
+      // UPDATE SHARED USER PROFILE
+      // ----------------------------------------------------------
+
+      final updatedUser = await _profileService.updateUserProfile(
         firstName: firstName,
         lastName: lastName,
         bio: bio,
       );
+
+      // ----------------------------------------------------------
+      // UPDATE STUDENT PROFILE
+      // ----------------------------------------------------------
+
+      StudentProfile? updatedStudentProfile;
+
+      if (widget.studentProfile != null) {
+        final learningGoals = _getLearningGoals();
+
+        if (learningGoals.isEmpty) {
+          throw const ApiException(
+            message: 'Please enter at least one learning goal',
+          );
+        }
+
+        updatedStudentProfile =
+        await _profileService.updateStudentProfile(
+          educationLevel:
+          _educationLevelController.text.trim(),
+          learningGoals: learningGoals,
+        );
+      }
 
       if (!mounted) {
         return;
@@ -114,7 +184,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       Navigator.pop(
         context,
-        updatedProfile,
+        EditProfileResult(
+          userProfile: updatedUser,
+          studentProfile: updatedStudentProfile,
+        ),
       );
     } on ApiException catch (error) {
       if (!mounted) {
@@ -157,6 +230,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isStudent = widget.studentProfile != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -176,11 +250,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(
-                      'Update your profile information',
-                      style: theme.textTheme.titleMedium,
+                      'Personal Information',
+                      style: theme.textTheme.titleLarge,
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
 
                     LoginTextField(
                       controller: _firstNameController,
@@ -210,7 +284,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       textInputAction: TextInputAction.newline,
                       maxLines: 5,
                       validator: _validateBio,
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      autovalidateMode:
+                      AutovalidateMode.onUserInteraction,
                       decoration: const InputDecoration(
                         labelText: 'Bio',
                         hintText: 'Tell us about yourself',
@@ -228,7 +303,56 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 24),
+                    if (isStudent) ...[
+                      const SizedBox(height: 32),
+
+                      Text(
+                        'Student Information',
+                        style: theme.textTheme.titleLarge,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      LoginTextField(
+                        controller: _educationLevelController,
+                        label: 'Education Level',
+                        hint: 'e.g. Undergraduate',
+                        icon: Icons.school_outlined,
+                        textInputAction: TextInputAction.next,
+                        validator: _validateEducationLevel,
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      TextFormField(
+                        controller: _learningGoalsController,
+                        keyboardType: TextInputType.multiline,
+                        textInputAction: TextInputAction.newline,
+                        maxLines: 5,
+                        validator: _validateLearningGoals,
+                        autovalidateMode:
+                        AutovalidateMode.onUserInteraction,
+                        decoration: const InputDecoration(
+                          labelText: 'Learning Goals',
+                          hintText:
+                          'Enter goals separated by commas',
+                          prefixIcon:
+                          Icon(Icons.flag_outlined),
+                          alignLabelWithHint: true,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Text(
+                        'Example: Learn Flutter, Improve mobile development skills',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 28),
 
                     PrimaryButton(
                       label: _isLoading
@@ -259,4 +383,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ),
     );
   }
+}
+
+class EditProfileResult {
+  const EditProfileResult({
+    required this.userProfile,
+    this.studentProfile,
+  });
+
+  final UserProfile userProfile;
+  final StudentProfile? studentProfile;
 }

@@ -12,6 +12,7 @@ import 'screens/forgot_password_screen.dart';
 import 'screens/password_reset_otp_screen.dart';
 import 'screens/reset_password_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/student_profile_screen.dart';
 
 class FlutterLmsApp extends StatelessWidget {
   const FlutterLmsApp({super.key});
@@ -274,6 +275,7 @@ class FlutterLmsApp extends StatelessWidget {
         },
 
         '/profile': (context) => const ProfileScreen(),
+        '/student-profile': (context) => const StudentProfileScreen(),
         '/student-dashboard': (context) => const StudentDashboard(),
         '/instructor-dashboard': (context) => const InstructorDashboard(),
         '/admin-dashboard': (context) => const AdminDashboard(),
