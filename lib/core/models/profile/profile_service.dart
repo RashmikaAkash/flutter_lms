@@ -7,6 +7,7 @@ import './../../storage/token_storage.dart';
 import 'package:dio/dio.dart';
 import 'package:mime/mime.dart';
 import 'package:http_parser/http_parser.dart';
+import './../profile/instructor_profile.dart';
 
 class ProfileService {
   ProfileService({
@@ -117,6 +118,115 @@ class ProfileService {
   }
 
   // ============================================================
+// GET INSTRUCTOR PROFILE
+// ============================================================
+
+  Future<InstructorProfile> getInstructorProfile() async {
+    final response = await _apiClient.get(
+      '/api/v1/profiles/instructor/me',
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid instructor profile response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Instructor profile data is missing',
+      );
+    }
+
+    final profile = data['profile'];
+
+    if (profile is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Instructor profile is missing',
+      );
+    }
+
+    return InstructorProfile.fromJson(profile);
+  }
+
+  // ============================================================
+// UPDATE INSTRUCTOR PROFILE
+// ============================================================
+
+  Future<InstructorProfile> updateInstructorProfile({
+    String? headline,
+    String? qualification,
+    int? experienceYears,
+    List<String>? expertise,
+    String? biography,
+  }) async {
+    final data = <String, dynamic>{};
+
+    if (headline != null) {
+      data['headline'] = headline;
+    }
+
+    if (qualification != null) {
+      data['qualification'] = qualification;
+    }
+
+    if (experienceYears != null) {
+      data['experienceYears'] = experienceYears;
+    }
+
+    if (expertise != null) {
+      data['expertise'] = expertise;
+    }
+
+    if (biography != null) {
+      data['biography'] = biography;
+    }
+
+    if (data.isEmpty) {
+      throw const ApiException(
+        message: 'No instructor profile changes provided',
+      );
+    }
+
+    final response = await _apiClient.patch(
+      '/api/v1/profiles/instructor/me',
+      data: data,
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid instructor profile update response',
+      );
+    }
+
+    final dataObject = responseData['data'];
+
+    if (dataObject is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Instructor profile update data is missing',
+      );
+    }
+
+    final profile = dataObject['profile'];
+
+    if (profile is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Updated instructor profile is missing',
+      );
+    }
+
+    return InstructorProfile.fromJson(profile);
+  }
+
+  // ============================================================
   // GET STUDENT PROFILE
   // ============================================================
 
@@ -219,9 +329,7 @@ class ProfileService {
   }) async {
     final mimeType = lookupMimeType(filePath);
 
-    final mediaType = mimeType != null
-        ? MediaType.parse(mimeType)
-        : null;
+    final mediaType = mimeType != null ? MediaType.parse(mimeType) : null;
 
     final file = await MultipartFile.fromFile(
       filePath,

@@ -4,6 +4,7 @@ import '../core/models/profile/full_user_profile.dart';
 import '../core/models/profile/profile_service.dart';
 import 'edit_profile_screen.dart';
 import 'package:image_picker/image_picker.dart';
+import '../core/models/profile/instructor_profile.dart';
 
 
 class ProfileScreen extends StatefulWidget {
@@ -20,6 +21,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isImageLoading = false;
 
   FullUserProfile? _profile;
+  InstructorProfile? _instructorProfile;
+
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -200,12 +203,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final profile = await _profileService.getFullProfile();
 
+      InstructorProfile? instructorProfile;
+
+      if (profile.user.role.toUpperCase() == 'INSTRUCTOR') {
+        instructorProfile =
+        await _profileService.getInstructorProfile();
+      }
+
       if (!mounted) {
         return;
       }
 
       setState(() {
         _profile = profile;
+        _instructorProfile = instructorProfile;
         _isLoading = false;
       });
     } on ApiException catch (error) {
@@ -450,6 +461,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildProfileContent() {
     final user = _profile!.user;
     final student = _profile!.profile;
+    final isInstructor = user.role.toUpperCase() == 'INSTRUCTOR';
 
     return RefreshIndicator(
       onRefresh: _loadProfile,
@@ -490,7 +502,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       MaterialPageRoute(
                         builder: (_) => EditProfileScreen(
                           profile: user,
-                          studentProfile: _profile!.profile,
+                          studentProfile: user.role.toUpperCase() == 'STUDENT'
+                              ? _profile!.profile
+                              : null,
+                          instructorProfile:
+                          isInstructor ? _instructorProfile : null,
                         ),
                       ),
                     );
@@ -562,6 +578,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
 
           const SizedBox(height: 16),
+
+          if (isInstructor && _instructorProfile != null)
+            _buildInfoCard(
+              title: 'Instructor Information',
+              children: [
+                _buildInfoRow(
+                  icon: Icons.title_outlined,
+                  label: 'Headline',
+                  value: _instructorProfile!.headline,
+                ),
+                _buildInfoRow(
+                  icon: Icons.school_outlined,
+                  label: 'Qualification',
+                  value: _instructorProfile!.qualification,
+                ),
+                _buildInfoRow(
+                  icon: Icons.work_history_outlined,
+                  label: 'Experience Years',
+                  value: _instructorProfile!.experienceYears.toString(),
+                ),
+                _buildInfoRow(
+                  icon: Icons.code_outlined,
+                  label: 'Expertise',
+                  value: _instructorProfile!.expertise.isEmpty
+                      ? 'No expertise added'
+                      : _instructorProfile!.expertise.join(', '),
+                ),
+                _buildInfoRow(
+                  icon: Icons.description_outlined,
+                  label: 'Biography',
+                  value: _instructorProfile!.biography,
+                ),
+              ],
+            ),
+
+          if (isInstructor && _instructorProfile != null)
+            const SizedBox(height: 16),
 
           if (student != null)
             _buildInfoCard(

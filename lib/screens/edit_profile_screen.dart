@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/errors/api_exception.dart';
+import '../core/models/profile/instructor_profile.dart';
 import '../core/models/profile/student_profile.dart';
 import '../core/models/profile/user_profile.dart';
 import '../core/models/profile/profile_service.dart';
@@ -12,10 +13,12 @@ class EditProfileScreen extends StatefulWidget {
     super.key,
     required this.profile,
     this.studentProfile,
+    this.instructorProfile,
   });
 
   final UserProfile profile;
   final StudentProfile? studentProfile;
+  final InstructorProfile? instructorProfile;
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -27,8 +30,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late final TextEditingController _firstNameController;
   late final TextEditingController _lastNameController;
   late final TextEditingController _bioController;
+
   late final TextEditingController _educationLevelController;
   late final TextEditingController _learningGoalsController;
+
+  late final TextEditingController _headlineController;
+  late final TextEditingController _qualificationController;
+  late final TextEditingController _experienceYearsController;
+  late final TextEditingController _expertiseController;
+  late final TextEditingController _biographyController;
 
   final ProfileService _profileService = ProfileService();
 
@@ -57,6 +67,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _learningGoalsController = TextEditingController(
       text: widget.studentProfile?.learningGoals.join(', ') ?? '',
     );
+
+    _headlineController = TextEditingController(
+      text: widget.instructorProfile?.headline ?? '',
+    );
+
+    _qualificationController = TextEditingController(
+      text: widget.instructorProfile?.qualification ?? '',
+    );
+
+    _experienceYearsController = TextEditingController(
+      text: widget.instructorProfile?.experienceYears.toString() ?? '',
+    );
+
+    _expertiseController = TextEditingController(
+      text: widget.instructorProfile?.expertise.join(', ') ?? '',
+    );
+
+    _biographyController = TextEditingController(
+      text: widget.instructorProfile?.biography ?? '',
+    );
   }
 
   @override
@@ -64,8 +94,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _firstNameController.dispose();
     _lastNameController.dispose();
     _bioController.dispose();
+
     _educationLevelController.dispose();
     _learningGoalsController.dispose();
+
+    _headlineController.dispose();
+    _qualificationController.dispose();
+    _experienceYearsController.dispose();
+    _expertiseController.dispose();
+    _biographyController.dispose();
+
     super.dispose();
   }
 
@@ -119,11 +157,37 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return null;
   }
 
+  String? _validateExperienceYears(String? value) {
+    if (widget.instructorProfile == null) {
+      return null;
+    }
+
+    final text = value?.trim() ?? '';
+
+    if (text.isEmpty) {
+      return 'Please enter experience years';
+    }
+
+    if (int.tryParse(text) == null) {
+      return 'Please enter a valid number';
+    }
+
+    return null;
+  }
+
   List<String> _getLearningGoals() {
     return _learningGoalsController.text
         .split(',')
         .map((goal) => goal.trim())
         .where((goal) => goal.isNotEmpty)
+        .toList();
+  }
+
+  List<String> _getExpertise() {
+    return _expertiseController.text
+        .split(',')
+        .map((item) => item.trim())
+        .where((item) => item.isNotEmpty)
         .toList();
   }
 
@@ -172,9 +236,35 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
         updatedStudentProfile =
         await _profileService.updateStudentProfile(
-          educationLevel:
-          _educationLevelController.text.trim(),
+          educationLevel: _educationLevelController.text.trim(),
           learningGoals: learningGoals,
+        );
+      }
+
+      // ----------------------------------------------------------
+      // UPDATE INSTRUCTOR PROFILE
+      // ----------------------------------------------------------
+
+      InstructorProfile? updatedInstructorProfile;
+
+      if (widget.instructorProfile != null) {
+        final experienceYears = int.tryParse(
+          _experienceYearsController.text.trim(),
+        );
+
+        if (experienceYears == null) {
+          throw const ApiException(
+            message: 'Please enter a valid number for experience years',
+          );
+        }
+
+        updatedInstructorProfile =
+        await _profileService.updateInstructorProfile(
+          headline: _headlineController.text.trim(),
+          qualification: _qualificationController.text.trim(),
+          experienceYears: experienceYears,
+          expertise: _getExpertise(),
+          biography: _biographyController.text.trim(),
         );
       }
 
@@ -187,6 +277,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         EditProfileResult(
           userProfile: updatedUser,
           studentProfile: updatedStudentProfile,
+          instructorProfile: updatedInstructorProfile,
         ),
       );
     } on ApiException catch (error) {
@@ -245,7 +336,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
     final isStudent = widget.studentProfile != null;
+    final isInstructor = widget.instructorProfile != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -318,6 +411,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                     ),
 
+                    // ==================================================
+                    // STUDENT INFORMATION
+                    // ==================================================
+
                     if (isStudent) ...[
                       const SizedBox(height: 32),
 
@@ -351,8 +448,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           labelText: 'Learning Goals',
                           hintText:
                           'Enter goals separated by commas',
-                          prefixIcon:
-                          Icon(Icons.flag_outlined),
+                          prefixIcon: Icon(Icons.flag_outlined),
                           alignLabelWithHint: true,
                         ),
                       ),
@@ -363,6 +459,97 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         'Example: Learn Flutter, Improve mobile development skills',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+
+                    // ==================================================
+                    // INSTRUCTOR INFORMATION
+                    // ==================================================
+
+                    if (isInstructor) ...[
+                      const SizedBox(height: 32),
+
+                      Text(
+                        'Instructor Information',
+                        style: theme.textTheme.titleLarge,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      LoginTextField(
+                        controller: _headlineController,
+                        label: 'Headline',
+                        hint: 'e.g. Senior Mobile Application Instructor',
+                        icon: Icons.title_outlined,
+                        textInputAction: TextInputAction.next,
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      LoginTextField(
+                        controller: _qualificationController,
+                        label: 'Qualification',
+                        hint: 'e.g. Bsc.IT',
+                        icon: Icons.school_outlined,
+                        textInputAction: TextInputAction.next,
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      TextFormField(
+                        controller: _experienceYearsController,
+                        keyboardType: TextInputType.number,
+                        textInputAction: TextInputAction.next,
+                        validator: _validateExperienceYears,
+                        autovalidateMode:
+                        AutovalidateMode.onUserInteraction,
+                        decoration: const InputDecoration(
+                          labelText: 'Experience Years',
+                          hintText: 'e.g. 5',
+                          prefixIcon:
+                          Icon(Icons.work_history_outlined),
+                        ),
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      TextFormField(
+                        controller: _expertiseController,
+                        keyboardType: TextInputType.multiline,
+                        textInputAction: TextInputAction.newline,
+                        maxLines: 3,
+                        decoration: const InputDecoration(
+                          labelText: 'Expertise',
+                          hintText:
+                          'Enter expertise separated by commas',
+                          prefixIcon: Icon(Icons.code_outlined),
+                          alignLabelWithHint: true,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Text(
+                        'Example: Flutter, Dart, Firebase, Node.js',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      TextFormField(
+                        controller: _biographyController,
+                        keyboardType: TextInputType.multiline,
+                        textInputAction: TextInputAction.newline,
+                        maxLines: 6,
+                        decoration: const InputDecoration(
+                          labelText: 'Biography',
+                          hintText:
+                          'Tell learners about your experience and expertise',
+                          prefixIcon: Icon(Icons.description_outlined),
+                          alignLabelWithHint: true,
                         ),
                       ),
                     ],
@@ -404,8 +591,10 @@ class EditProfileResult {
   const EditProfileResult({
     required this.userProfile,
     this.studentProfile,
+    this.instructorProfile,
   });
 
   final UserProfile userProfile;
   final StudentProfile? studentProfile;
+  final InstructorProfile? instructorProfile;
 }

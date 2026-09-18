@@ -119,7 +119,9 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
             tooltip: 'Notifications',
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, '/profile');
+            },
             icon: const Icon(Icons.account_circle_outlined),
             tooltip: 'Profile',
           ),
@@ -257,7 +259,9 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
                 title: 'Profile',
                 subtitle: 'Manage instructor profile',
                 icon: Icons.person_outline,
-                onTap: () {},
+                onTap: () {
+                  Navigator.pushNamed(context, '/profile');
+                },
               ),
             ],
           ),
