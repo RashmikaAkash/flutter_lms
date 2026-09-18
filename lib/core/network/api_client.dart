@@ -122,42 +122,6 @@ class ApiClient {
     }
   }
 
-  /// Test backend health/readiness endpoint.
-  ///
-  /// This endpoint does not require authentication.
-  Future<Response<dynamic>> testHealth() async {
-    try {
-      return await get(
-        '/api/v1/health/ready',
-        requiresAuth: false,
-      );
-    } on ApiException {
-      rethrow;
-    }
-  }
-
-  /// Temporary login API test.
-  ///
-  /// This can be used to verify that the Flutter app
-  /// can successfully communicate with the login endpoint.
-  Future<Response<dynamic>> testLogin({
-    required String email,
-    required String password,
-  }) async {
-    try {
-      return await post(
-        '/api/v1/auth/login',
-        data: {
-          'email': email,
-          'password': password,
-        },
-        requiresAuth: false,
-      );
-    } on ApiException {
-      rethrow;
-    }
-  }
-
   ApiException _handleDioException(DioException error) {
     final response = error.response;
 

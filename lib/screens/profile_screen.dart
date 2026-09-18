@@ -58,16 +58,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         );
       }
-    } on ApiException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message)),
-        );
+    } on ApiException catch (error) {
+      if (!mounted) {
+        return;
       }
-    } catch (e) {
+
+      if (error.isUnauthorized) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          '/login',
+              (route) => false,
+        );
+        return;
+      }
+
+      final message = error.isForbidden
+          ? 'You do not have permission to update your profile image.'
+          : error.message;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+        ),
+      );
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update profile image: $e')),
+          const SnackBar(
+            content: Text(
+              'Failed to update profile image. Please try again.',
+            ),
+          ),
         );
       }
     } finally {
@@ -179,10 +199,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
           content: Text(message),
         ),
       );
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to remove profile image: $e')),
+          const SnackBar(
+            content: Text(
+              'Failed to remove profile image. Please try again.',
+            ),
+          ),
         );
       }
     } finally {
