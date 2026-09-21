@@ -35,9 +35,12 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
   String? _curriculumErrorMessage;
   CourseEnrollment? _existingEnrollment;
 
+  String? _currentEnrollmentId;
+
   @override
   void initState() {
     super.initState();
+    _currentEnrollmentId = widget.enrollmentId;
     _loadCourseDetails();
   }
 
@@ -116,9 +119,18 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
     });
 
     try {
-      await _courseService.enrollInCourse(
+      final result = await _courseService.enrollInCourse(
         _course!.id,
       );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _existingEnrollment = result.enrollment;
+        _currentEnrollmentId = result.enrollment.id;
+      });
 
       if (!mounted) {
         return;
@@ -418,7 +430,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   '/course-curriculum',
                   arguments: {
                     'courseId': _course!.id,
-                    'enrollmentId': widget.enrollmentId,
+                    'enrollmentId': _currentEnrollmentId,
                   },
                 );
               },
