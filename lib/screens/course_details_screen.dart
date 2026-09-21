@@ -12,10 +12,12 @@ class CourseDetailsScreen extends StatefulWidget {
     super.key,
     required this.courseId,
     this.showEnrollButton = true,
+    this.enrollmentId,
   });
 
   final String courseId;
   final bool showEnrollButton;
+  final String? enrollmentId;
 
   @override
   State<CourseDetailsScreen> createState() => _CourseDetailsScreenState();
@@ -414,7 +416,10 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                 Navigator.pushNamed(
                   context,
                   '/course-curriculum',
-                  arguments: _course!.id,
+                  arguments: {
+                    'courseId': _course!.id,
+                    'enrollmentId': widget.enrollmentId,
+                  },
                 );
               },
               child: const Text('View Full'),

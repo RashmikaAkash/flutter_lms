@@ -91,6 +91,7 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
       arguments: {
         'courseId': enrollment.courseId,
         'showEnrollButton': false,
+        'enrollmentId': enrollment.id,
       },
     );
   }

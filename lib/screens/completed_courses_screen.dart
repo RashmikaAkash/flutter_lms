@@ -100,6 +100,7 @@ class _CompletedCoursesScreenState extends State<CompletedCoursesScreen> {
       arguments: {
         'courseId': enrollment.courseId,
         'showEnrollButton': false,
+        'enrollmentId': enrollment.id,
       },
     );
   }

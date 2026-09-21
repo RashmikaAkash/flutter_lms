@@ -10,6 +10,8 @@ import 'course_lesson_page.dart';
 import '../models/course/course_lesson.dart';
 import '../models/course/lesson_progress.dart';
 import 'lesson_completion_result.dart';
+import '../models/course/enrollment_progress.dart';
+import '../errors/api_exception.dart';
 
 class CourseService {
   CourseService({
@@ -46,6 +48,35 @@ class CourseService {
 
     return LessonProgress.fromJson(
       lessonProgress,
+    );
+  }
+
+  Future<EnrollmentProgress> getEnrollmentProgress(
+    String enrollmentId,
+  ) async {
+    final response = await _apiClient.get(
+      '/api/v1/enrollments/$enrollmentId/progress',
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid enrollment progress response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Enrollment progress data is unavailable',
+      );
+    }
+
+    return EnrollmentProgress.fromJson(
+      Map<String, dynamic>.from(data),
     );
   }
 

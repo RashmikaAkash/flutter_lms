@@ -285,21 +285,36 @@ class FlutterLmsApp extends StatelessWidget {
           final showEnrollButton =
               arguments['showEnrollButton'] as bool? ?? true;
 
+          final enrollmentId = arguments['enrollmentId'];
+
           return CourseDetailsScreen(
             courseId: courseId,
             showEnrollButton: showEnrollButton,
+            enrollmentId: enrollmentId is String && enrollmentId.isNotEmpty
+                ? enrollmentId
+                : null,
           );
         },
         '/course-curriculum': (context) {
-          final courseId =
-              ModalRoute.of(context)?.settings.arguments as String?;
+          final arguments = ModalRoute.of(context)?.settings.arguments;
 
-          if (courseId == null || courseId.isEmpty) {
+          if (arguments is! Map<String, dynamic>) {
             return const CourseBrowseScreen();
           }
 
+          final courseId = arguments['courseId'];
+
+          if (courseId is! String || courseId.isEmpty) {
+            return const CourseBrowseScreen();
+          }
+
+          final enrollmentId = arguments['enrollmentId'];
+
           return CourseCurriculumScreen(
             courseId: courseId,
+            enrollmentId: enrollmentId is String && enrollmentId.isNotEmpty
+                ? enrollmentId
+                : null,
           );
         },
         '/lesson-player': (context) {

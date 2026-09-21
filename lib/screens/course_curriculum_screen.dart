@@ -4,15 +4,18 @@ import '../core/course/course_service.dart';
 import '../core/errors/api_exception.dart';
 import '../core/models/course/course_lesson.dart';
 import '../core/models/course/course_section.dart';
+import '../core/models/course/enrollment_progress.dart';
 import '../widgets/message_widget.dart';
 
 class CourseCurriculumScreen extends StatefulWidget {
   const CourseCurriculumScreen({
     super.key,
     required this.courseId,
+    this.enrollmentId,
   });
 
   final String courseId;
+  final String? enrollmentId;
 
   @override
   State<CourseCurriculumScreen> createState() => _CourseCurriculumScreenState();
@@ -23,8 +26,13 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
 
   List<CourseSection> _sections = [];
 
+  EnrollmentProgress? _enrollmentProgress;
+
   bool _isLoading = true;
   String? _errorMessage;
+  String? _progressErrorMessage;
+
+  final Map<String, EnrollmentLessonProgress?> _lessonProgressById = {};
 
   @override
   void initState() {
@@ -36,6 +44,9 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _progressErrorMessage = null;
+      _enrollmentProgress = null;
+      _lessonProgressById.clear();
     });
 
     try {
@@ -43,16 +54,37 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
         widget.courseId,
       );
 
-      if (!mounted) {
-        return;
-      }
-
       sections.sort(
         (a, b) => a.order.compareTo(b.order),
       );
 
+      EnrollmentProgress? enrollmentProgress;
+      String? progressError;
+
+      if (widget.enrollmentId != null && widget.enrollmentId!.isNotEmpty) {
+        try {
+          enrollmentProgress = await _courseService.getEnrollmentProgress(
+            widget.enrollmentId!,
+          );
+
+          for (final lesson in enrollmentProgress.lessons) {
+            _lessonProgressById[lesson.id] = lesson.progress;
+          }
+        } on ApiException catch (error) {
+          progressError = error.message;
+        } catch (_) {
+          progressError = 'Unable to load learning progress. Please try again.';
+        }
+      }
+
+      if (!mounted) {
+        return;
+      }
+
       setState(() {
         _sections = sections;
+        _enrollmentProgress = enrollmentProgress;
+        _progressErrorMessage = progressError;
       });
     } on ApiException catch (error) {
       if (!mounted) {
@@ -93,6 +125,104 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
     }
 
     return Icons.menu_book_outlined;
+  }
+
+  Widget _buildProgressSummary() {
+    final progress = _enrollmentProgress;
+
+    if (progress == null) {
+      return const SizedBox.shrink();
+    }
+
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 18),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.trending_up_rounded,
+                  color: colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Course Progress',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            LinearProgressIndicator(
+              value: progress.enrollment.progressPercentage / 100,
+              minHeight: 8,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${progress.enrollment.progressPercentage.toStringAsFixed(0)}% completed',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Enrollment status: ${progress.enrollment.status}',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${progress.lessons.length} lesson(s) in this course',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLessonProgress(
+    CourseLesson lesson,
+  ) {
+    final progress = _lessonProgressById[lesson.id];
+
+    if (progress == null || progress.status.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 5),
+      child: Row(
+        children: [
+          Icon(
+            progress.status == 'COMPLETED'
+                ? Icons.check_circle_outline
+                : progress.status == 'IN_PROGRESS'
+                    ? Icons.play_circle_outline
+                    : Icons.radio_button_unchecked,
+            size: 16,
+            color: progress.status == 'COMPLETED'
+                ? colorScheme.primary
+                : colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 5),
+          Text(
+            progress.status.replaceAll('_', ' '),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w500,
+                ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildLessonTypeBadge(CourseLesson lesson) {
@@ -158,6 +288,7 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
               '${lesson.durationMinutes} minute(s)',
             ),
           ],
+          _buildLessonProgress(lesson),
         ],
       ),
       trailing: _buildLessonTypeBadge(lesson),
@@ -212,6 +343,17 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          _buildProgressSummary(),
+          if (_progressErrorMessage != null) ...[
+            MessageWidget(
+              title: 'Progress unavailable',
+              message: _progressErrorMessage!,
+              type: MessageType.info,
+              actionLabel: 'Retry',
+              onActionPressed: _loadSections,
+            ),
+            const SizedBox(height: 14),
+          ],
           Text(
             '${_sections.length} section(s)',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -277,6 +419,10 @@ class _CourseSectionTileState extends State<_CourseSectionTile> {
       if (!mounted) {
         return;
       }
+
+      lessons.sort(
+        (a, b) => a.order.compareTo(b.order),
+      );
 
       setState(() {
         _lessons = lessons;
