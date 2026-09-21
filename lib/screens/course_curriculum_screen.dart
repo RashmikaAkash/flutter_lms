@@ -249,12 +249,18 @@ class _CourseCurriculumScreenState extends State<CourseCurriculumScreen> {
 
   Widget _buildLessonTile(CourseLesson lesson) {
     return ListTile(
-      onTap: () {
-        Navigator.pushNamed(
+      onTap: () async {
+        await Navigator.pushNamed(
           context,
           '/lesson-player',
           arguments: lesson.id,
         );
+
+        if (!mounted) {
+          return;
+        }
+
+        await _loadSections();
       },
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 8,

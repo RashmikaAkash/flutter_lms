@@ -80,12 +80,12 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
     }
   }
 
-  void _openCourse(CourseEnrollment enrollment) {
+  Future<void> _openCourse(CourseEnrollment enrollment) async {
     if (enrollment.courseId.isEmpty) {
       return;
     }
 
-    Navigator.pushNamed(
+    await Navigator.pushNamed(
       context,
       '/course-details',
       arguments: {
@@ -93,6 +93,14 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
         'showEnrollButton': false,
         'enrollmentId': enrollment.id,
       },
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    await _loadEnrollments(
+      page: _currentPage,
     );
   }
 
