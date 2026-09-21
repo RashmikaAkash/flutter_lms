@@ -51,8 +51,6 @@ class _LoginScreenState extends State<LoginScreen> {
     return null;
   }
 
-
-
   String? _validatePassword(String? value) {
     final password = value ?? '';
 
@@ -188,9 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const LoginHeader(),
-
                     const SizedBox(height: 36),
-
                     LoginTextField(
                       controller: _emailController,
                       label: 'Email',
@@ -203,9 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         FocusScope.of(context).nextFocus();
                       },
                     ),
-
                     const SizedBox(height: 18),
-
                     LoginTextField(
                       controller: _passwordController,
                       label: 'Password',
@@ -233,7 +227,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         _handleLogin();
                       },
                     ),
-
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
@@ -241,17 +234,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: const Text('Forgot Password?'),
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
                     PrimaryButton(
                       label: _isLoading ? 'Signing in...' : 'Login',
                       icon: Icons.arrow_forward_rounded,
                       onPressed: _isLoading ? null : _handleLogin,
                     ),
-
                     const SizedBox(height: 24),
-
                     Row(
                       children: [
                         Expanded(
@@ -277,32 +266,26 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 20),
-
                     OutlinedButton.icon(
                       onPressed: _isLoading
                           ? null
                           : () {
-                        Navigator.pushNamed(
-                          context,
-                          '/registration-role',
-                        );
-                      },
+                              Navigator.pushNamed(
+                                context,
+                                '/registration-role',
+                              );
+                            },
                       icon: const Icon(Icons.person_add_alt_1),
                       label: const Text('Create an Account'),
                     ),
-
                     const SizedBox(height: 12),
                     OutlinedButton(
                       onPressed: _handleGuestContinue,
                       child: const Text('Continue as Guest'),
                     ),
-
                     const SizedBox(height: 12),
-
                     const SizedBox(height: 32),
-
                     Text(
                       'Student  •  Instructor  •  Admin',
                       textAlign: TextAlign.center,

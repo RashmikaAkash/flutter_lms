@@ -30,13 +30,11 @@ class InstructorProfile {
       experienceYears: json['experienceYears'] is int
           ? json['experienceYears'] as int
           : int.tryParse(
-        json['experienceYears']?.toString() ?? '',
-      ) ??
-          0,
+                json['experienceYears']?.toString() ?? '',
+              ) ??
+              0,
       expertise: json['expertise'] is List
-          ? (json['expertise'] as List)
-          .map((item) => item.toString())
-          .toList()
+          ? (json['expertise'] as List).map((item) => item.toString()).toList()
           : const [],
       biography: json['biography'] as String? ?? '',
       createdAt: _parseDateTime(json['createdAt']),

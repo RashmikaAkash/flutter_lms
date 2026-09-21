@@ -24,23 +24,18 @@ class RegistrationRoleScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 20),
-
                   Icon(
                     Icons.person_add_alt_1,
                     size: 72,
                     color: colorScheme.primary,
                   ),
-
                   const SizedBox(height: 24),
-
                   Text(
                     'Choose Your Role',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.headlineSmall,
                   ),
-
                   const SizedBox(height: 8),
-
                   Text(
                     'Select how you want to use Flutter LMS.',
                     textAlign: TextAlign.center,
@@ -48,14 +43,12 @@ class RegistrationRoleScreen extends StatelessWidget {
                       color: colorScheme.onSurfaceVariant,
                     ),
                   ),
-
                   const SizedBox(height: 32),
-
                   _RoleCard(
                     icon: Icons.school_outlined,
                     title: 'Student',
                     description:
-                    'Learn new skills, enroll in courses and track your progress.',
+                        'Learn new skills, enroll in courses and track your progress.',
                     onTap: () {
                       Navigator.pushNamed(
                         context,
@@ -63,14 +56,12 @@ class RegistrationRoleScreen extends StatelessWidget {
                       );
                     },
                   ),
-
                   const SizedBox(height: 16),
-
                   _RoleCard(
                     icon: Icons.menu_book_outlined,
                     title: 'Instructor',
                     description:
-                    'Create courses, manage learners and share your knowledge.',
+                        'Create courses, manage learners and share your knowledge.',
                     onTap: () {
                       Navigator.pushNamed(
                         context,
@@ -78,9 +69,7 @@ class RegistrationRoleScreen extends StatelessWidget {
                       );
                     },
                   ),
-
                   const SizedBox(height: 24),
-
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     child: const Text('Back to Login'),
@@ -134,9 +123,7 @@ class _RoleCard extends StatelessWidget {
                   color: colorScheme.onPrimaryContainer,
                 ),
               ),
-
               const SizedBox(width: 16),
-
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,9 +132,7 @@ class _RoleCard extends StatelessWidget {
                       title,
                       style: theme.textTheme.titleMedium,
                     ),
-
                     const SizedBox(height: 6),
-
                     Text(
                       description,
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -157,9 +142,7 @@ class _RoleCard extends StatelessWidget {
                   ],
                 ),
               ),
-
               const SizedBox(width: 8),
-
               Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 18,

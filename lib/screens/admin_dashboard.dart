@@ -67,7 +67,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       Navigator.pushNamedAndRemoveUntil(
         context,
         '/login',
-            (route) => false,
+        (route) => false,
       );
     } on ApiException catch (error) {
       if (!mounted) {
@@ -126,12 +126,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
             onPressed: _isLoggingOut ? null : _handleLogout,
             icon: _isLoggingOut
                 ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-              ),
-            )
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  )
                 : const Icon(Icons.logout_outlined),
             tooltip: 'Logout',
           ),
@@ -146,8 +146,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
               Text(
                 'Welcome back, Admin!',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 6),
               Text(

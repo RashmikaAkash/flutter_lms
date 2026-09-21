@@ -20,8 +20,7 @@ class EmailVerificationScreen extends StatefulWidget {
       _EmailVerificationScreenState();
 }
 
-class _EmailVerificationScreenState
-    extends State<EmailVerificationScreen> {
+class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _otpController = TextEditingController();
 
@@ -55,7 +54,7 @@ class _EmailVerificationScreenState
 
     _resendTimer = Timer.periodic(
       const Duration(seconds: 1),
-          (timer) {
+      (timer) {
         if (_remainingSeconds <= 1) {
           timer.cancel();
 
@@ -147,9 +146,7 @@ class _EmailVerificationScreenState
   }
 
   Future<void> _handleResendOtp() async {
-    if (_remainingSeconds > 0 ||
-        _isResending ||
-        _isVerifying) {
+    if (_remainingSeconds > 0 || _isResending || _isVerifying) {
       return;
     }
 
@@ -215,7 +212,7 @@ class _EmailVerificationScreenState
                 Navigator.pushNamedAndRemoveUntil(
                   context,
                   '/login',
-                      (route) => false,
+                  (route) => false,
                 );
               },
               child: const Text('Go to Login'),
@@ -277,17 +274,13 @@ class _EmailVerificationScreenState
                       size: 72,
                       color: colorScheme.primary,
                     ),
-
                     const SizedBox(height: 24),
-
                     Text(
                       'Verify Your Email',
                       style: theme.textTheme.headlineSmall,
                       textAlign: TextAlign.center,
                     ),
-
                     const SizedBox(height: 12),
-
                     Text(
                       'We sent a verification OTP to',
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -295,9 +288,7 @@ class _EmailVerificationScreenState
                       ),
                       textAlign: TextAlign.center,
                     ),
-
                     const SizedBox(height: 6),
-
                     Text(
                       widget.email,
                       style: theme.textTheme.titleMedium?.copyWith(
@@ -305,9 +296,7 @@ class _EmailVerificationScreenState
                       ),
                       textAlign: TextAlign.center,
                     ),
-
                     const SizedBox(height: 32),
-
                     LoginTextField(
                       controller: _otpController,
                       label: 'Verification OTP',
@@ -318,20 +307,13 @@ class _EmailVerificationScreenState
                       validator: _validateOtp,
                       onFieldSubmitted: (_) => _handleVerify(),
                     ),
-
                     const SizedBox(height: 24),
-
                     PrimaryButton(
-                      label: _isVerifying
-                          ? 'Verifying...'
-                          : 'Verify Email',
+                      label: _isVerifying ? 'Verifying...' : 'Verify Email',
                       icon: Icons.verified_outlined,
-                      onPressed:
-                      _isVerifying ? null : _handleVerify,
+                      onPressed: _isVerifying ? null : _handleVerify,
                     ),
-
                     const SizedBox(height: 20),
-
                     Text(
                       _remainingSeconds > 0
                           ? 'Resend OTP available in ${_formatTimer()}'
@@ -341,24 +323,18 @@ class _EmailVerificationScreenState
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
                     TextButton(
                       onPressed: (_remainingSeconds > 0 ||
-                          _isResending ||
-                          _isVerifying)
+                              _isResending ||
+                              _isVerifying)
                           ? null
                           : _handleResendOtp,
                       child: Text(
-                        _isResending
-                            ? 'Sending...'
-                            : 'Resend OTP',
+                        _isResending ? 'Sending...' : 'Resend OTP',
                       ),
                     ),
-
                     const SizedBox(height: 16),
-
                     TextButton(
                       onPressed: (_isVerifying || _isResending)
                           ? null

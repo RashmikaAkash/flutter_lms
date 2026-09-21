@@ -23,25 +23,25 @@ class PrimaryButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         child: isLoading
             ? const SizedBox(
-          width: 22,
-          height: 22,
-          child: CircularProgressIndicator(
-            strokeWidth: 2.2,
-          ),
-        )
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.2,
+                ),
+              )
             : Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(label),
-            if (icon != null) ...[
-              const SizedBox(width: 8),
-              Icon(
-                icon,
-                size: 20,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(label),
+                  if (icon != null) ...[
+                    const SizedBox(width: 8),
+                    Icon(
+                      icon,
+                      size: 20,
+                    ),
+                  ],
+                ],
               ),
-            ],
-          ],
-        ),
       ),
     );
   }

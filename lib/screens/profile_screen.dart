@@ -6,7 +6,6 @@ import 'edit_profile_screen.dart';
 import 'package:image_picker/image_picker.dart';
 import '../core/models/profile/instructor_profile.dart';
 
-
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -66,7 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (error.isUnauthorized) {
         Navigator.of(context).pushNamedAndRemoveUntil(
           '/login',
-              (route) => false,
+          (route) => false,
         );
         return;
       }
@@ -100,9 +99,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showProfileImageOptions() {
-    final hasImage =
-        _profile?.user.profileImageUrl != null &&
-            _profile!.user.profileImageUrl!.isNotEmpty;
+    final hasImage = _profile?.user.profileImageUrl != null &&
+        _profile!.user.profileImageUrl!.isNotEmpty;
 
     showModalBottomSheet(
       context: context,
@@ -185,7 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (error.isUnauthorized) {
         Navigator.of(context).pushNamedAndRemoveUntil(
           '/login',
-              (route) => false,
+          (route) => false,
         );
         return;
       }
@@ -230,8 +228,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       InstructorProfile? instructorProfile;
 
       if (profile.user.role.toUpperCase() == 'INSTRUCTOR') {
-        instructorProfile =
-        await _profileService.getInstructorProfile();
+        instructorProfile = await _profileService.getInstructorProfile();
       }
 
       if (!mounted) {
@@ -251,7 +248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (error.isUnauthorized) {
         Navigator.of(context).pushNamedAndRemoveUntil(
           '/login',
-              (route) => false,
+          (route) => false,
         );
         return;
       }
@@ -375,7 +372,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 );
               },
             ),
-
           if (_isImageLoading)
             const CircleAvatar(
               radius: 48,
@@ -388,7 +384,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-
           Positioned(
             right: 0,
             bottom: 0,
@@ -402,9 +397,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
               child: IconButton(
-                onPressed: _isImageLoading
-                    ? null
-                    : _showProfileImageOptions,
+                onPressed: _isImageLoading ? null : _showProfileImageOptions,
                 icon: const Icon(
                   Icons.camera_alt_outlined,
                   size: 18,
@@ -480,8 +473,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-
-
   Widget _buildProfileContent() {
     final user = _profile!.user;
     final student = _profile!.profile;
@@ -497,28 +488,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 _buildProfileAvatar(),
                 const SizedBox(height: 14),
-
                 Text(
                   user.fullName,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineSmall
-                      ?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                 ),
-
                 const SizedBox(height: 4),
-
                 Text(
                   user.email,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
-
                 const SizedBox(height: 16),
-
                 OutlinedButton.icon(
                   onPressed: () async {
                     final result = await Navigator.push<EditProfileResult>(
@@ -530,7 +513,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ? _profile!.profile
                               : null,
                           instructorProfile:
-                          isInstructor ? _instructorProfile : null,
+                              isInstructor ? _instructorProfile : null,
                         ),
                       ),
                     );
@@ -547,9 +530,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
           ),
-
           const SizedBox(height: 24),
-
           _buildInfoCard(
             title: 'Account Information',
             children: [
@@ -585,9 +566,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
           ),
-
           const SizedBox(height: 16),
-
           _buildInfoCard(
             title: 'About',
             children: [
@@ -600,9 +579,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
           ),
-
           const SizedBox(height: 16),
-
           if (isInstructor && _instructorProfile != null)
             _buildInfoCard(
               title: 'Instructor Information',
@@ -636,10 +613,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-
           if (isInstructor && _instructorProfile != null)
             const SizedBox(height: 16),
-
           if (student != null)
             _buildInfoCard(
               title: 'Student Information',
@@ -663,9 +638,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-
           if (student != null) const SizedBox(height: 16),
-
           _buildInfoCard(
             title: 'Account Activity',
             children: [
@@ -700,12 +673,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: _isLoading
           ? _buildLoadingState()
           : _errorMessage != null
-          ? _buildErrorState()
-          : _profile == null
-          ? const Center(
-        child: Text('Profile data is unavailable.'),
-      )
-          : _buildProfileContent(),
+              ? _buildErrorState()
+              : _profile == null
+                  ? const Center(
+                      child: Text('Profile data is unavailable.'),
+                    )
+                  : _buildProfileContent(),
     );
   }
 }

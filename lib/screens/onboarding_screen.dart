@@ -18,19 +18,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     {
       'title': 'Learn Anywhere',
       'description':
-      'Access your learning materials and courses anytime from your mobile device.',
+          'Access your learning materials and courses anytime from your mobile device.',
       'icon': '📚',
     },
     {
       'title': 'Track Your Progress',
       'description':
-      'Keep track of your courses, lessons and learning progress in one place.',
+          'Keep track of your courses, lessons and learning progress in one place.',
       'icon': '📈',
     },
     {
       'title': 'Manage Your Learning',
       'description':
-      'Get a simple and convenient learning experience with Flutter LMS.',
+          'Get a simple and convenient learning experience with Flutter LMS.',
       'icon': '🎓',
     },
   ];
@@ -101,8 +101,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                               .textTheme
                               .headlineSmall
                               ?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                                fontWeight: FontWeight.bold,
+                              ),
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -116,12 +116,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 },
               ),
             ),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
                 _pages.length,
-                    (index) {
+                (index) {
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 250),
                     margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -137,7 +136,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 },
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.all(24),
               child: SizedBox(
@@ -145,9 +143,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: ElevatedButton(
                   onPressed: _nextPage,
                   child: Text(
-                    _currentPage == _pages.length - 1
-                        ? 'Get Started'
-                        : 'Next',
+                    _currentPage == _pages.length - 1 ? 'Get Started' : 'Next',
                   ),
                 ),
               ),

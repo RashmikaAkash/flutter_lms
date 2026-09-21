@@ -61,8 +61,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
       }
 
       setState(() {
-        _errorMessage =
-        'Unable to load student profile. Please try again.';
+        _errorMessage = 'Unable to load student profile. Please try again.';
         _isLoading = false;
       });
     }
@@ -199,13 +198,10 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
               ),
             ),
           ),
-
           const SizedBox(height: 16),
-
           OutlinedButton.icon(
             onPressed: () async {
-              final updatedProfile =
-              await Navigator.push<StudentProfile>(
+              final updatedProfile = await Navigator.push<StudentProfile>(
                 context,
                 MaterialPageRoute(
                   builder: (_) => EditStudentProfileScreen(
@@ -239,14 +235,14 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
       body: _isLoading
           ? _buildLoadingState()
           : _errorMessage != null
-          ? _buildErrorState()
-          : _profile == null
-          ? const Center(
-        child: Text(
-          'Student profile data is unavailable.',
-        ),
-      )
-          : _buildProfileContent(),
+              ? _buildErrorState()
+              : _profile == null
+                  ? const Center(
+                      child: Text(
+                        'Student profile data is unavailable.',
+                      ),
+                    )
+                  : _buildProfileContent(),
     );
   }
 }
@@ -264,8 +260,7 @@ class EditStudentProfileScreen extends StatefulWidget {
       _EditStudentProfileScreenState();
 }
 
-class _EditStudentProfileScreenState
-    extends State<EditStudentProfileScreen> {
+class _EditStudentProfileScreenState extends State<EditStudentProfileScreen> {
   final _formKey = GlobalKey<FormState>();
 
   late final TextEditingController _educationLevelController;
@@ -320,8 +315,7 @@ class _EditStudentProfileScreenState
       return;
     }
 
-    final educationLevel =
-    _educationLevelController.text.trim();
+    final educationLevel = _educationLevelController.text.trim();
 
     final learningGoals = _learningGoalsController.text
         .split(',')
@@ -339,8 +333,7 @@ class _EditStudentProfileScreenState
     });
 
     try {
-      final updatedProfile =
-      await _profileService.updateStudentProfile(
+      final updatedProfile = await _profileService.updateStudentProfile(
         educationLevel: educationLevel,
         learningGoals: learningGoals,
       );
@@ -418,18 +411,14 @@ class _EditStudentProfileScreenState
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
                     Text(
                       'Update your education and learning goals.',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
-
                     const SizedBox(height: 28),
-
                     LoginTextField(
                       controller: _educationLevelController,
                       label: 'Education Level',
@@ -438,55 +427,41 @@ class _EditStudentProfileScreenState
                       textInputAction: TextInputAction.next,
                       validator: _validateEducationLevel,
                     ),
-
                     const SizedBox(height: 18),
-
                     TextFormField(
                       controller: _learningGoalsController,
                       keyboardType: TextInputType.multiline,
                       textInputAction: TextInputAction.newline,
                       maxLines: 5,
                       validator: _validateLearningGoals,
-                      autovalidateMode:
-                      AutovalidateMode.onUserInteraction,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       decoration: const InputDecoration(
                         labelText: 'Learning Goals',
-                        hintText:
-                        'Enter goals separated by commas',
+                        hintText: 'Enter goals separated by commas',
                         prefixIcon: Icon(Icons.flag_outlined),
                         alignLabelWithHint: true,
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
                     Text(
                       'Example: Learn Flutter, Improve mobile development skills',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
-
                     const SizedBox(height: 24),
-
                     PrimaryButton(
-                      label: _isLoading
-                          ? 'Saving...'
-                          : 'Save Changes',
+                      label: _isLoading ? 'Saving...' : 'Save Changes',
                       icon: Icons.save_outlined,
-                      onPressed: _isLoading
-                          ? null
-                          : _handleSave,
+                      onPressed: _isLoading ? null : _handleSave,
                     ),
-
                     const SizedBox(height: 12),
-
                     OutlinedButton(
                       onPressed: _isLoading
                           ? null
                           : () {
-                        Navigator.pop(context);
-                      },
+                              Navigator.pop(context);
+                            },
                       child: const Text('Cancel'),
                     ),
                   ],

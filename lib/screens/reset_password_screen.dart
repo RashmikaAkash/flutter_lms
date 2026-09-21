@@ -114,7 +114,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       Navigator.pushNamedAndRemoveUntil(
         context,
         '/login',
-            (route) => false,
+        (route) => false,
       );
     } on ApiException catch (error) {
       if (!mounted) {
@@ -200,9 +200,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const LoginHeader(),
-
                     const SizedBox(height: 32),
-
                     Text(
                       'Create a New Password',
                       textAlign: TextAlign.center,
@@ -210,9 +208,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-
                     const SizedBox(height: 12),
-
                     Text(
                       'Choose a strong password for your account.',
                       textAlign: TextAlign.center,
@@ -221,9 +217,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         height: 1.5,
                       ),
                     ),
-
                     const SizedBox(height: 32),
-
                     LoginTextField(
                       controller: _newPasswordController,
                       label: 'New Password',
@@ -243,8 +237,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         ),
                         onPressed: () {
                           setState(() {
-                            _obscureNewPassword =
-                            !_obscureNewPassword;
+                            _obscureNewPassword = !_obscureNewPassword;
                           });
                         },
                       ),
@@ -252,9 +245,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         FocusScope.of(context).nextFocus();
                       },
                     ),
-
                     const SizedBox(height: 18),
-
                     LoginTextField(
                       controller: _confirmPasswordController,
                       label: 'Confirm Password',
@@ -274,8 +265,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         ),
                         onPressed: () {
                           setState(() {
-                            _obscureConfirmPassword =
-                            !_obscureConfirmPassword;
+                            _obscureConfirmPassword = !_obscureConfirmPassword;
                           });
                         },
                       ),
@@ -283,29 +273,23 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         _handleResetPassword();
                       },
                     ),
-
                     const SizedBox(height: 24),
-
                     Text(
                       'Password must contain at least 8 characters, '
-                          'including uppercase, lowercase, number and '
-                          'special character.',
+                      'including uppercase, lowercase, number and '
+                      'special character.',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                         height: 1.5,
                       ),
                     ),
-
                     const SizedBox(height: 24),
-
                     PrimaryButton(
                       label: _isLoading
                           ? 'Resetting Password...'
                           : 'Reset Password',
                       icon: Icons.lock_reset,
-                      onPressed: _isLoading
-                          ? null
-                          : _handleResetPassword,
+                      onPressed: _isLoading ? null : _handleResetPassword,
                     ),
                   ],
                 ),

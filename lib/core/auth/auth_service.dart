@@ -335,9 +335,9 @@ class AuthService {
   // ============================================================
 
   String _extractMessage(
-      dynamic responseData, {
-        required String fallback,
-      }) {
+    dynamic responseData, {
+    required String fallback,
+  }) {
     if (responseData is! Map<String, dynamic>) {
       throw const ApiException(
         message: 'Invalid server response',

@@ -14,9 +14,9 @@ class AuthInterceptor extends Interceptor {
 
   @override
   Future<void> onRequest(
-      RequestOptions options,
-      RequestInterceptorHandler handler,
-      ) async {
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     final requiresAuth = options.extra['requiresAuth'] == true;
 
     if (!requiresAuth) {
@@ -35,9 +35,9 @@ class AuthInterceptor extends Interceptor {
 
   @override
   Future<void> onError(
-      DioException err,
-      ErrorInterceptorHandler handler,
-      ) async {
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
     final request = err.requestOptions;
 
     final requiresAuth = request.extra['requiresAuth'] == true;
@@ -79,11 +79,11 @@ class AuthInterceptor extends Interceptor {
   }
 
   bool _shouldRefresh(
-      DioException error,
-      RequestOptions request,
-      bool requiresAuth,
-      bool alreadyRetried,
-      ) {
+    DioException error,
+    RequestOptions request,
+    bool requiresAuth,
+    bool alreadyRetried,
+  ) {
     if (!requiresAuth) {
       return false;
     }
@@ -167,9 +167,9 @@ class AuthInterceptor extends Interceptor {
   }
 
   Future<Response<dynamic>> _retryRequest(
-      RequestOptions request,
-      String accessToken,
-      ) async {
+    RequestOptions request,
+    String accessToken,
+  ) async {
     final retryDio = Dio(
       BaseOptions(
         baseUrl: AppConfig.baseUrl,

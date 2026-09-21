@@ -31,7 +31,7 @@ class FakeTokenStorage extends TokenStorage {
 void main() {
   testWidgets(
     'Flutter LMS starts with splash screen',
-        (WidgetTester tester) async {
+    (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: SplashScreen(

@@ -11,9 +11,9 @@ class FullUserProfile {
   final StudentProfile? profile;
 
   factory FullUserProfile.fromJson(
-      Map<String, dynamic> json, {
-        String? role,
-      }) {
+    Map<String, dynamic> json, {
+    String? role,
+  }) {
     final userJson = json['user'];
 
     if (userJson is! Map<String, dynamic>) {
@@ -24,8 +24,7 @@ class FullUserProfile {
 
     return FullUserProfile(
       user: UserProfile.fromJson(userJson),
-      profile: role == 'STUDENT' &&
-          profileJson is Map<String, dynamic>
+      profile: role == 'STUDENT' && profileJson is Map<String, dynamic>
           ? StudentProfile.fromJson(profileJson)
           : null,
     );

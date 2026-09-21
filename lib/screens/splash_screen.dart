@@ -43,20 +43,18 @@ class _SplashScreenState extends State<SplashScreen> {
     final accessToken = await _tokenStorage.getAccessToken();
     final refreshToken = await _tokenStorage.getRefreshToken();
     final role = await _tokenStorage.getRole();
-    final onboardingCompleted =
-    await _tokenStorage.isOnboardingCompleted();
+    final onboardingCompleted = await _tokenStorage.isOnboardingCompleted();
 
     if (!mounted) {
       return;
     }
 
-    final hasValidSession =
-        accessToken != null &&
-            accessToken.isNotEmpty &&
-            refreshToken != null &&
-            refreshToken.isNotEmpty &&
-            role != null &&
-            role.isNotEmpty;
+    final hasValidSession = accessToken != null &&
+        accessToken.isNotEmpty &&
+        refreshToken != null &&
+        refreshToken.isNotEmpty &&
+        role != null &&
+        role.isNotEmpty;
 
     if (hasValidSession) {
       switch (role) {
@@ -139,8 +137,8 @@ class _SplashScreenState extends State<SplashScreen> {
             Text(
               'Flutter LMS',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 8),
             Text(

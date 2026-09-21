@@ -145,9 +145,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const LoginHeader(),
-
                     const SizedBox(height: 32),
-
                     Text(
                       'Reset Your Password',
                       textAlign: TextAlign.center,
@@ -155,21 +153,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-
                     const SizedBox(height: 12),
-
                     Text(
                       'Enter your registered email address and we will '
-                          'send you a password-reset OTP.',
+                      'send you a password-reset OTP.',
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                         height: 1.5,
                       ),
                     ),
-
                     const SizedBox(height: 32),
-
                     LoginTextField(
                       controller: _emailController,
                       label: 'Email',
@@ -182,27 +176,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         _handleForgotPassword();
                       },
                     ),
-
                     const SizedBox(height: 24),
-
                     PrimaryButton(
-                      label: _isLoading
-                          ? 'Sending OTP...'
-                          : 'Send Reset OTP',
+                      label: _isLoading ? 'Sending OTP...' : 'Send Reset OTP',
                       icon: Icons.mark_email_read_outlined,
-                      onPressed: _isLoading
-                          ? null
-                          : _handleForgotPassword,
+                      onPressed: _isLoading ? null : _handleForgotPassword,
                     ),
-
                     const SizedBox(height: 16),
-
                     TextButton.icon(
                       onPressed: _isLoading
                           ? null
                           : () {
-                        Navigator.pop(context);
-                      },
+                              Navigator.pop(context);
+                            },
                       icon: const Icon(Icons.arrow_back),
                       label: const Text('Back to Login'),
                     ),

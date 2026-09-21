@@ -27,7 +27,7 @@ class DashboardNavCard extends StatelessWidget {
               CircleAvatar(
                 radius: 24,
                 backgroundColor:
-                Theme.of(context).colorScheme.secondaryContainer,
+                    Theme.of(context).colorScheme.secondaryContainer,
                 child: Icon(
                   icon,
                   color: Theme.of(context).colorScheme.secondary,
@@ -41,8 +41,8 @@ class DashboardNavCard extends StatelessWidget {
                     Text(
                       title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                            fontWeight: FontWeight.w600,
+                          ),
                     ),
                     const SizedBox(height: 4),
                     Text(

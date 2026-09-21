@@ -13,8 +13,7 @@ class StudentRegistrationScreen extends StatefulWidget {
       _StudentRegistrationScreenState();
 }
 
-class _StudentRegistrationScreenState
-    extends State<StudentRegistrationScreen> {
+class _StudentRegistrationScreenState extends State<StudentRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
 
   final _firstNameController = TextEditingController();
@@ -46,9 +45,9 @@ class _StudentRegistrationScreenState
   }
 
   String? _validateRequired(
-      String? value,
-      String fieldName,
-      ) {
+    String? value,
+    String fieldName,
+  ) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName is required';
     }
@@ -151,8 +150,7 @@ class _StudentRegistrationScreenState
       return;
     }
 
-    final formattedDate =
-        '${pickedDate.year.toString().padLeft(4, '0')}-'
+    final formattedDate = '${pickedDate.year.toString().padLeft(4, '0')}-'
         '${pickedDate.month.toString().padLeft(2, '0')}-'
         '${pickedDate.day.toString().padLeft(2, '0')}';
 
@@ -240,7 +238,7 @@ class _StudentRegistrationScreenState
             message.isNotEmpty
                 ? message
                 : 'Student registration successful.\n'
-                'Check your email for the verification OTP.',
+                    'Check your email for the verification OTP.',
           ),
           actions: [
             FilledButton(
@@ -311,9 +309,7 @@ class _StudentRegistrationScreenState
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
-
                     const SizedBox(height: 28),
-
                     LoginTextField(
                       controller: _firstNameController,
                       label: 'First Name',
@@ -323,9 +319,7 @@ class _StudentRegistrationScreenState
                       validator: (value) =>
                           _validateRequired(value, 'First name'),
                     ),
-
                     const SizedBox(height: 16),
-
                     LoginTextField(
                       controller: _lastNameController,
                       label: 'Last Name',
@@ -335,9 +329,7 @@ class _StudentRegistrationScreenState
                       validator: (value) =>
                           _validateRequired(value, 'Last name'),
                     ),
-
                     const SizedBox(height: 16),
-
                     LoginTextField(
                       controller: _emailController,
                       label: 'Email',
@@ -347,9 +339,7 @@ class _StudentRegistrationScreenState
                       textInputAction: TextInputAction.next,
                       validator: _validateEmail,
                     ),
-
                     const SizedBox(height: 16),
-
                     LoginTextField(
                       controller: _passwordController,
                       label: 'Password',
@@ -374,9 +364,7 @@ class _StudentRegistrationScreenState
                         },
                       ),
                     ),
-
                     const SizedBox(height: 16),
-
                     LoginTextField(
                       controller: _confirmPasswordController,
                       label: 'Confirm Password',
@@ -396,15 +384,12 @@ class _StudentRegistrationScreenState
                         ),
                         onPressed: () {
                           setState(() {
-                            _obscureConfirmPassword =
-                            !_obscureConfirmPassword;
+                            _obscureConfirmPassword = !_obscureConfirmPassword;
                           });
                         },
                       ),
                     ),
-
                     const SizedBox(height: 16),
-
                     TextFormField(
                       controller: _dateOfBirthController,
                       readOnly: true,
@@ -421,9 +406,7 @@ class _StudentRegistrationScreenState
                       validator: _validateDateOfBirth,
                       onTap: _selectDateOfBirth,
                     ),
-
                     const SizedBox(height: 16),
-
                     LoginTextField(
                       controller: _educationLevelController,
                       label: 'Education Level',
@@ -432,9 +415,7 @@ class _StudentRegistrationScreenState
                       textInputAction: TextInputAction.next,
                       validator: _validateEducationLevel,
                     ),
-
                     const SizedBox(height: 16),
-
                     TextFormField(
                       controller: _learningGoalsController,
                       maxLines: 3,
@@ -447,33 +428,24 @@ class _StudentRegistrationScreenState
                       ),
                       validator: _validateLearningGoals,
                     ),
-
                     const SizedBox(height: 8),
-
                     Text(
                       'Separate multiple learning goals with commas.',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
-
                     const SizedBox(height: 28),
-
                     PrimaryButton(
-                      label: _isLoading
-                          ? 'Creating Account...'
-                          : 'Create Account',
+                      label:
+                          _isLoading ? 'Creating Account...' : 'Create Account',
                       icon: Icons.person_add_alt_1,
-                      onPressed:
-                      _isLoading ? null : _handleRegistration,
+                      onPressed: _isLoading ? null : _handleRegistration,
                     ),
-
                     const SizedBox(height: 16),
-
                     TextButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () => Navigator.pop(context),
+                      onPressed:
+                          _isLoading ? null : () => Navigator.pop(context),
                       child: const Text(
                         'Already have an account? Sign in',
                       ),

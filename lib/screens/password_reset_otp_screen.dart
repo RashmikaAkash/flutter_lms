@@ -15,8 +15,7 @@ class PasswordResetOtpScreen extends StatefulWidget {
   final String email;
 
   @override
-  State<PasswordResetOtpScreen> createState() =>
-      _PasswordResetOtpScreenState();
+  State<PasswordResetOtpScreen> createState() => _PasswordResetOtpScreenState();
 }
 
 class _PasswordResetOtpScreenState extends State<PasswordResetOtpScreen> {
@@ -184,9 +183,7 @@ class _PasswordResetOtpScreenState extends State<PasswordResetOtpScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const LoginHeader(),
-
                     const SizedBox(height: 32),
-
                     Text(
                       'Verify Reset Code',
                       textAlign: TextAlign.center,
@@ -194,9 +191,7 @@ class _PasswordResetOtpScreenState extends State<PasswordResetOtpScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-
                     const SizedBox(height: 12),
-
                     Text(
                       'Enter the 6-digit OTP sent to',
                       textAlign: TextAlign.center,
@@ -204,9 +199,7 @@ class _PasswordResetOtpScreenState extends State<PasswordResetOtpScreen> {
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
-
                     const SizedBox(height: 6),
-
                     Text(
                       widget.email,
                       textAlign: TextAlign.center,
@@ -214,9 +207,7 @@ class _PasswordResetOtpScreenState extends State<PasswordResetOtpScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-
                     const SizedBox(height: 32),
-
                     LoginTextField(
                       controller: _otpController,
                       label: 'OTP',
@@ -229,41 +220,28 @@ class _PasswordResetOtpScreenState extends State<PasswordResetOtpScreen> {
                         _handleVerifyOtp();
                       },
                     ),
-
                     const SizedBox(height: 24),
-
                     PrimaryButton(
-                      label: _isLoading
-                          ? 'Verifying...'
-                          : 'Verify OTP',
+                      label: _isLoading ? 'Verifying...' : 'Verify OTP',
                       icon: Icons.verified_outlined,
-                      onPressed: _isLoading
-                          ? null
-                          : _handleVerifyOtp,
+                      onPressed: _isLoading ? null : _handleVerifyOtp,
                     ),
-
                     const SizedBox(height: 12),
-
                     OutlinedButton.icon(
-                      onPressed: _isLoading || _isResending
-                          ? null
-                          : _handleResendOtp,
+                      onPressed:
+                          _isLoading || _isResending ? null : _handleResendOtp,
                       icon: const Icon(Icons.refresh),
                       label: Text(
-                        _isResending
-                            ? 'Resending...'
-                            : 'Resend OTP',
+                        _isResending ? 'Resending...' : 'Resend OTP',
                       ),
                     ),
-
                     const SizedBox(height: 12),
-
                     TextButton(
                       onPressed: _isLoading
                           ? null
                           : () {
-                        Navigator.pop(context);
-                      },
+                              Navigator.pop(context);
+                            },
                       child: const Text('Back'),
                     ),
                   ],

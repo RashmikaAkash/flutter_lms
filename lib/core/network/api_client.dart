@@ -37,10 +37,10 @@ class ApiClient {
   }
 
   Future<Response<dynamic>> get(
-      String path, {
-        Map<String, dynamic>? queryParameters,
-        bool requiresAuth = false,
-      }) async {
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    bool requiresAuth = false,
+  }) async {
     try {
       return await _dio.get(
         path,
@@ -57,11 +57,11 @@ class ApiClient {
   }
 
   Future<Response<dynamic>> post(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        bool requiresAuth = false,
-      }) async {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    bool requiresAuth = false,
+  }) async {
     try {
       return await _dio.post(
         path,
@@ -79,11 +79,11 @@ class ApiClient {
   }
 
   Future<Response<dynamic>> patch(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        bool requiresAuth = false,
-      }) async {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    bool requiresAuth = false,
+  }) async {
     try {
       return await _dio.patch(
         path,
@@ -101,11 +101,11 @@ class ApiClient {
   }
 
   Future<Response<dynamic>> delete(
-      String path, {
-        dynamic data,
-        Map<String, dynamic>? queryParameters,
-        bool requiresAuth = false,
-      }) async {
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    bool requiresAuth = false,
+  }) async {
     try {
       return await _dio.delete(
         path,

@@ -10,8 +10,7 @@ class InstructorDashboard extends StatefulWidget {
   const InstructorDashboard({super.key});
 
   @override
-  State<InstructorDashboard> createState() =>
-      _InstructorDashboardState();
+  State<InstructorDashboard> createState() => _InstructorDashboardState();
 }
 
 class _InstructorDashboardState extends State<InstructorDashboard> {
@@ -68,7 +67,7 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
       Navigator.pushNamedAndRemoveUntil(
         context,
         '/login',
-            (route) => false,
+        (route) => false,
       );
     } on ApiException catch (error) {
       if (!mounted) {
@@ -129,12 +128,12 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
             onPressed: _isLoggingOut ? null : _handleLogout,
             icon: _isLoggingOut
                 ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-              ),
-            )
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  )
                 : const Icon(Icons.logout_outlined),
             tooltip: 'Logout',
           ),
@@ -148,10 +147,9 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
             children: [
               Text(
                 'Welcome back, Instructor!',
-                style:
-                Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 6),
               Text(
@@ -159,7 +157,6 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 20),
-
               GridView.count(
                 crossAxisCount: 2,
                 crossAxisSpacing: 12,
@@ -194,67 +191,54 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 24),
-
               const SectionHeader(
                 title: 'Course Management',
                 actionLabel: 'View All',
               ),
-
               const SizedBox(height: 10),
-
               DashboardNavCard(
                 title: 'Create Course',
                 subtitle: 'Build a new learning course',
                 icon: Icons.add_circle_outline,
                 onTap: () {},
               ),
-
               DashboardNavCard(
                 title: 'Course Builder',
                 subtitle: 'Manage sections and lessons',
                 icon: Icons.build_outlined,
                 onTap: () {},
               ),
-
               DashboardNavCard(
                 title: 'Quizzes',
                 subtitle: 'Create and manage quizzes',
                 icon: Icons.quiz_outlined,
                 onTap: () {},
               ),
-
               DashboardNavCard(
                 title: 'Assignments',
                 subtitle: 'Manage learner assignments',
                 icon: Icons.assignment_outlined,
                 onTap: () {},
               ),
-
               const SizedBox(height: 24),
-
               const SectionHeader(
                 title: 'Learner Management',
                 actionLabel: 'View All',
               ),
-
               const SizedBox(height: 10),
-
               DashboardNavCard(
                 title: 'Enrollments',
                 subtitle: 'Inspect enrolled learners',
                 icon: Icons.group_outlined,
                 onTap: () {},
               ),
-
               DashboardNavCard(
                 title: 'Submissions',
                 subtitle: 'Review and grade submissions',
                 icon: Icons.fact_check_outlined,
                 onTap: () {},
               ),
-
               DashboardNavCard(
                 title: 'Profile',
                 subtitle: 'Manage instructor profile',

@@ -8,7 +8,6 @@ import '../core/errors/api_exception.dart';
 class StudentDashboard extends StatelessWidget {
   const StudentDashboard({super.key});
 
-
   Future<void> _handleLogout(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -49,7 +48,7 @@ class StudentDashboard extends StatelessWidget {
 
       Navigator.of(context).pushNamedAndRemoveUntil(
         '/login',
-            (route) => false,
+        (route) => false,
       );
     } on ApiException catch (error) {
       if (!context.mounted) {
@@ -82,7 +81,7 @@ class StudentDashboard extends StatelessWidget {
           title: const Text('Logout from all devices'),
           content: const Text(
             'This will sign you out from all active sessions. '
-                'Do you want to continue?',
+            'Do you want to continue?',
           ),
           actions: [
             TextButton(
@@ -115,7 +114,7 @@ class StudentDashboard extends StatelessWidget {
 
       Navigator.of(context).pushNamedAndRemoveUntil(
         '/login',
-            (route) => false,
+        (route) => false,
       );
     } on ApiException catch (error) {
       if (!context.mounted) {
@@ -141,6 +140,7 @@ class StudentDashboard extends StatelessWidget {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -198,8 +198,8 @@ class StudentDashboard extends StatelessWidget {
               Text(
                 'Welcome back, Student!',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
               const SizedBox(height: 6),
               Text(
@@ -207,7 +207,6 @@ class StudentDashboard extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 20),
-
               GridView.count(
                 crossAxisCount: 2,
                 crossAxisSpacing: 12,
@@ -242,62 +241,81 @@ class StudentDashboard extends StatelessWidget {
                   ),
                 ],
               ),
-
               const SizedBox(height: 24),
-
               const SectionHeader(
                 title: 'Continue Learning',
                 actionLabel: 'View All',
               ),
-
               const SizedBox(height: 10),
-
               DashboardNavCard(
                 title: 'Flutter Mobile Development',
                 subtitle: 'Continue from Lesson 6',
                 icon: Icons.phone_android,
                 onTap: () {},
               ),
-
               const SizedBox(height: 10),
-
               DashboardNavCard(
                 title: 'Dart Programming',
                 subtitle: 'Continue from Module 3',
                 icon: Icons.code,
                 onTap: () {},
               ),
-
               const SizedBox(height: 24),
-
               const SectionHeader(
                 title: 'Quick Access',
                 actionLabel: 'View All',
               ),
-
               const SizedBox(height: 10),
-
               DashboardNavCard(
                 title: 'My Courses',
                 subtitle: 'View enrolled courses',
                 icon: Icons.library_books_outlined,
-                onTap: () {},
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/my-courses',
+                  );
+                },
               ),
-
+              const SectionHeader(
+                title: 'Quick Access',
+                actionLabel: 'View All',
+              ),
+              const SizedBox(height: 10),
+              DashboardNavCard(
+                title: 'Browse Courses',
+                subtitle: 'Explore published courses',
+                icon: Icons.explore_outlined,
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/course-browse',
+                  );
+                },
+              ),
+              DashboardNavCard(
+                title: 'My Courses',
+                subtitle: 'View enrolled courses',
+                icon: Icons.library_books_outlined,
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/my-courses',
+                  );
+                },
+              ),
               DashboardNavCard(
                 title: 'Quizzes',
                 subtitle: 'View available quizzes',
                 icon: Icons.quiz_outlined,
                 onTap: () {},
               ),
-
               DashboardNavCard(
                 title: 'Assignments',
                 subtitle: 'View and submit assignments',
                 icon: Icons.assignment_outlined,
                 onTap: () {},
               ),
-
               DashboardNavCard(
                 title: 'Notifications',
                 subtitle: 'Check recent notifications',

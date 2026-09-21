@@ -50,9 +50,9 @@ class _InstructorRegistrationScreenState
   }
 
   String? _validateRequired(
-      String? value,
-      String fieldName,
-      ) {
+    String? value,
+    String fieldName,
+  ) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName is required';
     }
@@ -140,7 +140,7 @@ class _InstructorRegistrationScreenState
     }
 
     final experienceYears =
-    int.tryParse(_experienceYearsController.text.trim());
+        int.tryParse(_experienceYearsController.text.trim());
 
     if (experienceYears == null) {
       _showMessage(
@@ -219,7 +219,7 @@ class _InstructorRegistrationScreenState
             message.isNotEmpty
                 ? message
                 : 'Instructor registration successful.\n'
-                'Check your email for the verification OTP.',
+                    'Check your email for the verification OTP.',
           ),
           actions: [
             FilledButton(
@@ -291,7 +291,6 @@ class _InstructorRegistrationScreenState
                       ),
                     ),
                     const SizedBox(height: 28),
-
                     LoginTextField(
                       controller: _firstNameController,
                       label: 'First Name',
@@ -302,7 +301,6 @@ class _InstructorRegistrationScreenState
                           _validateRequired(value, 'First name'),
                     ),
                     const SizedBox(height: 16),
-
                     LoginTextField(
                       controller: _lastNameController,
                       label: 'Last Name',
@@ -313,7 +311,6 @@ class _InstructorRegistrationScreenState
                           _validateRequired(value, 'Last name'),
                     ),
                     const SizedBox(height: 16),
-
                     LoginTextField(
                       controller: _emailController,
                       label: 'Email',
@@ -324,7 +321,6 @@ class _InstructorRegistrationScreenState
                       validator: _validateEmail,
                     ),
                     const SizedBox(height: 16),
-
                     LoginTextField(
                       controller: _passwordController,
                       label: 'Password',
@@ -350,7 +346,6 @@ class _InstructorRegistrationScreenState
                       ),
                     ),
                     const SizedBox(height: 16),
-
                     LoginTextField(
                       controller: _confirmPasswordController,
                       label: 'Confirm Password',
@@ -370,14 +365,12 @@ class _InstructorRegistrationScreenState
                         ),
                         onPressed: () {
                           setState(() {
-                            _obscureConfirmPassword =
-                            !_obscureConfirmPassword;
+                            _obscureConfirmPassword = !_obscureConfirmPassword;
                           });
                         },
                       ),
                     ),
                     const SizedBox(height: 16),
-
                     LoginTextField(
                       controller: _headlineController,
                       label: 'Headline',
@@ -388,7 +381,6 @@ class _InstructorRegistrationScreenState
                           _validateRequired(value, 'Headline'),
                     ),
                     const SizedBox(height: 16),
-
                     LoginTextField(
                       controller: _qualificationController,
                       label: 'Qualification',
@@ -399,7 +391,6 @@ class _InstructorRegistrationScreenState
                           _validateRequired(value, 'Qualification'),
                     ),
                     const SizedBox(height: 16),
-
                     LoginTextField(
                       controller: _experienceYearsController,
                       label: 'Experience Years',
@@ -410,36 +401,29 @@ class _InstructorRegistrationScreenState
                       validator: _validateExperienceYears,
                     ),
                     const SizedBox(height: 16),
-
                     TextFormField(
                       controller: _expertiseController,
                       maxLines: 3,
                       textInputAction: TextInputAction.newline,
                       decoration: const InputDecoration(
                         labelText: 'Areas of Expertise',
-                        hintText:
-                        'Flutter, Dart, Mobile Development',
+                        hintText: 'Flutter, Dart, Mobile Development',
                         prefixIcon: Icon(Icons.workspace_premium_outlined),
                         alignLabelWithHint: true,
                       ),
-                      validator: (value) =>
-                          _validateRequired(
-                            value,
-                            'Areas of expertise',
-                          ),
+                      validator: (value) => _validateRequired(
+                        value,
+                        'Areas of expertise',
+                      ),
                     ),
-
                     const SizedBox(height: 8),
-
                     Text(
                       'Separate multiple expertise areas with commas.',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
-
                     const SizedBox(height: 16),
-
                     TextFormField(
                       controller: _biographyController,
                       maxLines: 5,
@@ -447,31 +431,24 @@ class _InstructorRegistrationScreenState
                       decoration: const InputDecoration(
                         labelText: 'Biography',
                         hintText:
-                        'Tell students about your background and experience.',
+                            'Tell students about your background and experience.',
                         prefixIcon: Icon(Icons.description_outlined),
                         alignLabelWithHint: true,
                       ),
                       validator: (value) =>
                           _validateRequired(value, 'Biography'),
                     ),
-
                     const SizedBox(height: 28),
-
                     PrimaryButton(
-                      label: _isLoading
-                          ? 'Creating Account...'
-                          : 'Create Account',
+                      label:
+                          _isLoading ? 'Creating Account...' : 'Create Account',
                       icon: Icons.person_add_alt_1,
-                      onPressed:
-                      _isLoading ? null : _handleRegistration,
+                      onPressed: _isLoading ? null : _handleRegistration,
                     ),
-
                     const SizedBox(height: 16),
-
                     TextButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () => Navigator.pop(context),
+                      onPressed:
+                          _isLoading ? null : () => Navigator.pop(context),
                       child: const Text(
                         'Already have an account? Sign in',
                       ),

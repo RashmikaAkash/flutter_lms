@@ -10,9 +10,9 @@ class ApiResponse<T> {
   final T? data;
 
   factory ApiResponse.fromJson(
-      Map<String, dynamic> json, {
-        T Function(dynamic data)? fromData,
-      }) {
+    Map<String, dynamic> json, {
+    T Function(dynamic data)? fromData,
+  }) {
     return ApiResponse<T>(
       success: json['success'] == true,
       message: json['message']?.toString() ?? '',

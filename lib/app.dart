@@ -13,6 +13,12 @@ import 'screens/password_reset_otp_screen.dart';
 import 'screens/reset_password_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/student_profile_screen.dart';
+import 'screens/course_browse_screen.dart';
+import 'screens/course_details_screen.dart';
+import 'screens/my_courses_screen.dart';
+import 'screens/course_curriculum_screen.dart';
+import 'screens/lesson_player_screen.dart';
+import 'screens/completed_courses_screen.dart';
 
 class FlutterLmsApp extends StatelessWidget {
   const FlutterLmsApp({super.key});
@@ -76,30 +82,24 @@ class FlutterLmsApp extends StatelessWidget {
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-
           labelStyle: TextStyle(
             fontFamily: 'Poppins',
             color: colorScheme.onSurfaceVariant,
           ),
-
           hintStyle: TextStyle(
             fontFamily: 'Poppins',
             color: colorScheme.onSurfaceVariant,
           ),
-
           prefixIconColor: colorScheme.onSurfaceVariant,
           suffixIconColor: colorScheme.onSurfaceVariant,
-
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none,
           ),
-
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide.none,
           ),
-
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(
@@ -107,7 +107,6 @@ class FlutterLmsApp extends StatelessWidget {
               width: 1.6,
             ),
           ),
-
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(
@@ -115,7 +114,6 @@ class FlutterLmsApp extends StatelessWidget {
               width: 1.2,
             ),
           ),
-
           focusedErrorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
             borderSide: BorderSide(
@@ -123,7 +121,6 @@ class FlutterLmsApp extends StatelessWidget {
               width: 1.6,
             ),
           ),
-
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 16,
@@ -222,14 +219,12 @@ class FlutterLmsApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/registration-role': (context) => const RegistrationRoleScreen(),
-        '/student-registration': (context) =>
-        const StudentRegistrationScreen(),
+        '/student-registration': (context) => const StudentRegistrationScreen(),
         '/instructor-registration': (context) =>
-        const InstructorRegistrationScreen(),
+            const InstructorRegistrationScreen(),
 
         '/email-verification': (context) {
-          final email =
-          ModalRoute.of(context)?.settings.arguments as String?;
+          final email = ModalRoute.of(context)?.settings.arguments as String?;
 
           if (email == null || email.isEmpty) {
             return const LoginScreen();
@@ -241,12 +236,10 @@ class FlutterLmsApp extends StatelessWidget {
         // ------------------------------------------------------------
         // PASSWORD RECOVERY
         // ------------------------------------------------------------
-        '/forgot-password': (context) =>
-        const ForgotPasswordScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
 
         '/password-reset-otp': (context) {
-          final email =
-          ModalRoute.of(context)?.settings.arguments as String?;
+          final email = ModalRoute.of(context)?.settings.arguments as String?;
 
           if (email == null || email.isEmpty) {
             return const LoginScreen();
@@ -256,8 +249,7 @@ class FlutterLmsApp extends StatelessWidget {
         },
 
         '/reset-password': (context) {
-          final arguments =
-              ModalRoute.of(context)?.settings.arguments;
+          final arguments = ModalRoute.of(context)?.settings.arguments;
 
           if (arguments is! Map<String, dynamic>) {
             return const LoginScreen();
@@ -276,6 +268,54 @@ class FlutterLmsApp extends StatelessWidget {
 
         '/profile': (context) => const ProfileScreen(),
         '/student-profile': (context) => const StudentProfileScreen(),
+        '/course-browse': (context) => const CourseBrowseScreen(),
+        '/course-details': (context) {
+          final arguments = ModalRoute.of(context)?.settings.arguments;
+
+          if (arguments is! Map<String, dynamic>) {
+            return const CourseBrowseScreen();
+          }
+
+          final courseId = arguments['courseId'];
+
+          if (courseId is! String || courseId.isEmpty) {
+            return const CourseBrowseScreen();
+          }
+
+          final showEnrollButton =
+              arguments['showEnrollButton'] as bool? ?? true;
+
+          return CourseDetailsScreen(
+            courseId: courseId,
+            showEnrollButton: showEnrollButton,
+          );
+        },
+        '/course-curriculum': (context) {
+          final courseId =
+              ModalRoute.of(context)?.settings.arguments as String?;
+
+          if (courseId == null || courseId.isEmpty) {
+            return const CourseBrowseScreen();
+          }
+
+          return CourseCurriculumScreen(
+            courseId: courseId,
+          );
+        },
+        '/lesson-player': (context) {
+          final lessonId =
+              ModalRoute.of(context)?.settings.arguments as String?;
+
+          if (lessonId == null || lessonId.isEmpty) {
+            return const CourseBrowseScreen();
+          }
+
+          return LessonPlayerScreen(
+            lessonId: lessonId,
+          );
+        },
+        '/completed-courses': (context) => const CompletedCoursesScreen(),
+        '/my-courses': (context) => const MyCoursesScreen(),
         '/student-dashboard': (context) => const StudentDashboard(),
         '/instructor-dashboard': (context) => const InstructorDashboard(),
         '/admin-dashboard': (context) => const AdminDashboard(),

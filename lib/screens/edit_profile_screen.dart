@@ -234,8 +234,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           );
         }
 
-        updatedStudentProfile =
-        await _profileService.updateStudentProfile(
+        updatedStudentProfile = await _profileService.updateStudentProfile(
           educationLevel: _educationLevelController.text.trim(),
           learningGoals: learningGoals,
         );
@@ -259,7 +258,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         }
 
         updatedInstructorProfile =
-        await _profileService.updateInstructorProfile(
+            await _profileService.updateInstructorProfile(
           headline: _headlineController.text.trim(),
           qualification: _qualificationController.text.trim(),
           experienceYears: experienceYears,
@@ -288,7 +287,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (error.isUnauthorized) {
         Navigator.of(context).pushNamedAndRemoveUntil(
           '/login',
-              (route) => false,
+          (route) => false,
         );
         return;
       }
@@ -392,8 +391,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       textInputAction: TextInputAction.newline,
                       maxLines: 5,
                       validator: _validateBio,
-                      autovalidateMode:
-                      AutovalidateMode.onUserInteraction,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                       decoration: const InputDecoration(
                         labelText: 'Bio',
                         hintText: 'Tell us about yourself',
@@ -417,14 +415,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                     if (isStudent) ...[
                       const SizedBox(height: 32),
-
                       Text(
                         'Student Information',
                         style: theme.textTheme.titleLarge,
                       ),
-
                       const SizedBox(height: 20),
-
                       LoginTextField(
                         controller: _educationLevelController,
                         label: 'Education Level',
@@ -433,28 +428,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         textInputAction: TextInputAction.next,
                         validator: _validateEducationLevel,
                       ),
-
                       const SizedBox(height: 18),
-
                       TextFormField(
                         controller: _learningGoalsController,
                         keyboardType: TextInputType.multiline,
                         textInputAction: TextInputAction.newline,
                         maxLines: 5,
                         validator: _validateLearningGoals,
-                        autovalidateMode:
-                        AutovalidateMode.onUserInteraction,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
                         decoration: const InputDecoration(
                           labelText: 'Learning Goals',
-                          hintText:
-                          'Enter goals separated by commas',
+                          hintText: 'Enter goals separated by commas',
                           prefixIcon: Icon(Icons.flag_outlined),
                           alignLabelWithHint: true,
                         ),
                       ),
-
                       const SizedBox(height: 8),
-
                       Text(
                         'Example: Learn Flutter, Improve mobile development skills',
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -469,14 +458,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                     if (isInstructor) ...[
                       const SizedBox(height: 32),
-
                       Text(
                         'Instructor Information',
                         style: theme.textTheme.titleLarge,
                       ),
-
                       const SizedBox(height: 20),
-
                       LoginTextField(
                         controller: _headlineController,
                         label: 'Headline',
@@ -484,9 +470,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         icon: Icons.title_outlined,
                         textInputAction: TextInputAction.next,
                       ),
-
                       const SizedBox(height: 18),
-
                       LoginTextField(
                         controller: _qualificationController,
                         label: 'Qualification',
@@ -494,26 +478,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         icon: Icons.school_outlined,
                         textInputAction: TextInputAction.next,
                       ),
-
                       const SizedBox(height: 18),
-
                       TextFormField(
                         controller: _experienceYearsController,
                         keyboardType: TextInputType.number,
                         textInputAction: TextInputAction.next,
                         validator: _validateExperienceYears,
-                        autovalidateMode:
-                        AutovalidateMode.onUserInteraction,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
                         decoration: const InputDecoration(
                           labelText: 'Experience Years',
                           hintText: 'e.g. 5',
-                          prefixIcon:
-                          Icon(Icons.work_history_outlined),
+                          prefixIcon: Icon(Icons.work_history_outlined),
                         ),
                       ),
-
                       const SizedBox(height: 18),
-
                       TextFormField(
                         controller: _expertiseController,
                         keyboardType: TextInputType.multiline,
@@ -521,24 +499,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         maxLines: 3,
                         decoration: const InputDecoration(
                           labelText: 'Expertise',
-                          hintText:
-                          'Enter expertise separated by commas',
+                          hintText: 'Enter expertise separated by commas',
                           prefixIcon: Icon(Icons.code_outlined),
                           alignLabelWithHint: true,
                         ),
                       ),
-
                       const SizedBox(height: 8),
-
                       Text(
                         'Example: Flutter, Dart, Firebase, Node.js',
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
                       ),
-
                       const SizedBox(height: 18),
-
                       TextFormField(
                         controller: _biographyController,
                         keyboardType: TextInputType.multiline,
@@ -547,7 +520,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         decoration: const InputDecoration(
                           labelText: 'Biography',
                           hintText:
-                          'Tell learners about your experience and expertise',
+                              'Tell learners about your experience and expertise',
                           prefixIcon: Icon(Icons.description_outlined),
                           alignLabelWithHint: true,
                         ),
@@ -557,13 +530,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     const SizedBox(height: 28),
 
                     PrimaryButton(
-                      label: _isLoading
-                          ? 'Saving...'
-                          : 'Save Changes',
+                      label: _isLoading ? 'Saving...' : 'Save Changes',
                       icon: Icons.save_outlined,
-                      onPressed: _isLoading
-                          ? null
-                          : _handleSave,
+                      onPressed: _isLoading ? null : _handleSave,
                     ),
 
                     const SizedBox(height: 12),
@@ -572,8 +541,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       onPressed: _isLoading
                           ? null
                           : () {
-                        Navigator.pop(context);
-                      },
+                              Navigator.pop(context);
+                            },
                       child: const Text('Cancel'),
                     ),
                   ],

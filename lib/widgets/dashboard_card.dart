@@ -49,8 +49,8 @@ class DashboardCard extends StatelessWidget {
                     Text(
                       value,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
                   ],
                 ),

@@ -38,7 +38,6 @@ class HomeScreen extends StatelessWidget {
                 style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: 24),
-
               ElevatedButton.icon(
                 onPressed: () {
                   Navigator.push(
@@ -51,9 +50,7 @@ class HomeScreen extends StatelessWidget {
                 icon: const Icon(Icons.play_arrow_rounded),
                 label: const Text('Open Onboarding'),
               ),
-
               const SizedBox(height: 12),
-
               OutlinedButton.icon(
                 onPressed: () {
                   Navigator.pop(context);
