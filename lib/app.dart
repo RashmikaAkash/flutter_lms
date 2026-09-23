@@ -19,6 +19,8 @@ import 'screens/my_courses_screen.dart';
 import 'screens/course_curriculum_screen.dart';
 import 'screens/lesson_player_screen.dart';
 import 'screens/completed_courses_screen.dart';
+import 'screens/student_quiz_list_screen.dart';
+import 'screens/student_quiz_detail_screen.dart';
 
 class FlutterLmsApp extends StatelessWidget {
   const FlutterLmsApp({super.key});
@@ -327,6 +329,34 @@ class FlutterLmsApp extends StatelessWidget {
 
           return LessonPlayerScreen(
             lessonId: lessonId,
+          );
+        },
+        '/student-quizzes': (context) {
+          final arguments = ModalRoute.of(context)?.settings.arguments;
+
+          if (arguments is! Map<String, dynamic>) {
+            return const CourseBrowseScreen();
+          }
+
+          final courseId = arguments['courseId'];
+
+          if (courseId is! String || courseId.isEmpty) {
+            return const CourseBrowseScreen();
+          }
+
+          return StudentQuizListScreen(
+            courseId: courseId,
+          );
+        },
+        '/student-quiz-detail': (context) {
+          final quizId = ModalRoute.of(context)?.settings.arguments as String?;
+
+          if (quizId == null || quizId.isEmpty) {
+            return const CourseBrowseScreen();
+          }
+
+          return StudentQuizDetailScreen(
+            quizId: quizId,
           );
         },
         '/completed-courses': (context) => const CompletedCoursesScreen(),

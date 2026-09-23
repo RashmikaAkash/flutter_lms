@@ -420,21 +420,41 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
             Text(
               'Curriculum',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamed(
-                  context,
-                  '/course-curriculum',
-                  arguments: {
-                    'courseId': _course!.id,
-                    'enrollmentId': _currentEnrollmentId,
+            Wrap(
+              spacing: 4,
+              children: [
+                if (_currentEnrollmentId != null &&
+                    _currentEnrollmentId!.isNotEmpty)
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/student-quizzes',
+                        arguments: {
+                          'courseId': _course!.id,
+                        },
+                      );
+                    },
+                    icon: const Icon(Icons.quiz_outlined),
+                    label: const Text('Quizzes'),
+                  ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/course-curriculum',
+                      arguments: {
+                        'courseId': _course!.id,
+                        'enrollmentId': _currentEnrollmentId,
+                      },
+                    );
                   },
-                );
-              },
-              child: const Text('View Full'),
+                  child: const Text('View Full'),
+                ),
+              ],
             ),
           ],
         ),

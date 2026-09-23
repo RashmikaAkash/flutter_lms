@@ -12,6 +12,12 @@ import '../models/course/lesson_progress.dart';
 import 'lesson_completion_result.dart';
 import '../models/course/enrollment_progress.dart';
 import '../errors/api_exception.dart';
+import '../models/quiz/quiz.dart';
+import '../models/quiz/quiz_detail.dart';
+import '../models/quiz/quiz_attempt.dart';
+import '../models/quiz/quiz_answer.dart';
+import 'quiz_attempt_page.dart';
+import '../models/quiz/quiz_submission_result.dart';
 
 class CourseService {
   CourseService({
@@ -309,6 +315,192 @@ class CourseService {
     }
 
     return CoursePage.fromJson(data);
+  }
+
+  Future<QuizAttemptPage> getStudentAttempts({
+    required String quizId,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    final response = await _apiClient.get(
+      '/api/v1/quizzes/$quizId/attempts/me',
+      queryParameters: {
+        'page': page,
+        'limit': limit,
+      },
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid quiz attempts response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Quiz attempts data is unavailable',
+      );
+    }
+
+    return QuizAttemptPage.fromJson(
+      Map<String, dynamic>.from(data),
+    );
+  }
+
+  Future<QuizAttempt> startQuizAttempt(
+    String quizId,
+  ) async {
+    final response = await _apiClient.post(
+      '/api/v1/quizzes/$quizId/start',
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid quiz attempt response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Quiz attempt data is unavailable',
+      );
+    }
+
+    final attempt = data['attempt'];
+
+    if (attempt is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Quiz attempt was not returned',
+      );
+    }
+
+    return QuizAttempt.fromJson(
+      Map<String, dynamic>.from(attempt),
+    );
+  }
+
+  Future<QuizSubmissionResult> submitQuizAttempt(
+    String attemptId,
+    List<QuizAnswer> answers,
+  ) async {
+    final response = await _apiClient.post(
+      '/api/v1/quiz-attempts/$attemptId/submit',
+      data: {
+        'answers': answers
+            .map(
+              (answer) => answer.toJson(),
+            )
+            .toList(),
+      },
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid quiz submission response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Quiz submission data is unavailable',
+      );
+    }
+
+    final attempt = data['attempt'];
+
+    if (attempt is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Submitted quiz attempt was not returned',
+      );
+    }
+
+    return QuizSubmissionResult.fromJson(
+      Map<String, dynamic>.from(data),
+    );
+  }
+
+  Future<List<Quiz>> getStudentQuizzes(
+    String courseId,
+  ) async {
+    final response = await _apiClient.get(
+      '/api/v1/courses/$courseId/quizzes',
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid quizzes response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Quiz data is unavailable',
+      );
+    }
+
+    final rawQuizzes = data['quizzes'];
+
+    if (rawQuizzes is! List) {
+      return const [];
+    }
+
+    return rawQuizzes
+        .whereType<Map>()
+        .map(
+          (item) => Quiz.fromJson(
+            Map<String, dynamic>.from(item),
+          ),
+        )
+        .toList();
+  }
+
+  Future<QuizDetail> getStudentQuiz(
+    String quizId,
+  ) async {
+    final response = await _apiClient.get(
+      '/api/v1/quizzes/$quizId',
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid quiz response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Quiz data is unavailable',
+      );
+    }
+
+    return QuizDetail.fromJson(
+      Map<String, dynamic>.from(data),
+    );
   }
 
   Future<Course> getPublishedCourse(String courseId) async {
