@@ -21,6 +21,11 @@ import 'screens/lesson_player_screen.dart';
 import 'screens/completed_courses_screen.dart';
 import 'screens/student_quiz_list_screen.dart';
 import 'screens/student_quiz_detail_screen.dart';
+import 'screens/student_assignment_list_screen.dart';
+import 'screens/student_assignment_detail_screen.dart';
+import 'screens/instructor_assignment_submissions_screen.dart';
+import 'screens/instructor_course_list_screen.dart';
+import 'screens/instructor_assignment_list_screen.dart';
 
 class FlutterLmsApp extends StatelessWidget {
   const FlutterLmsApp({super.key});
@@ -357,6 +362,62 @@ class FlutterLmsApp extends StatelessWidget {
 
           return StudentQuizDetailScreen(
             quizId: quizId,
+          );
+        },
+        '/student-assignments': (context) {
+          final arguments = ModalRoute.of(context)?.settings.arguments;
+
+          if (arguments is! Map<String, dynamic>) {
+            return const CourseBrowseScreen();
+          }
+
+          final courseId = arguments['courseId'];
+
+          if (courseId is! String || courseId.isEmpty) {
+            return const CourseBrowseScreen();
+          }
+
+          return StudentAssignmentListScreen(
+            courseId: courseId,
+          );
+        },
+        '/student-assignment-detail': (context) {
+          final assignmentId =
+              ModalRoute.of(context)?.settings.arguments as String?;
+
+          if (assignmentId == null || assignmentId.isEmpty) {
+            return const CourseBrowseScreen();
+          }
+
+          return StudentAssignmentDetailScreen(
+            assignmentId: assignmentId,
+          );
+        },
+        '/instructor-assignment-submissions': (context) {
+          final assignmentId =
+              ModalRoute.of(context)?.settings.arguments as String?;
+
+          if (assignmentId == null || assignmentId.isEmpty) {
+            return const InstructorDashboard();
+          }
+
+          return InstructorAssignmentSubmissionsScreen(
+            assignmentId: assignmentId,
+          );
+        },
+        '/instructor-courses': (context) {
+          return const InstructorCourseListScreen();
+        },
+        '/instructor-assignment-list': (context) {
+          final courseId =
+              ModalRoute.of(context)?.settings.arguments as String?;
+
+          if (courseId == null || courseId.isEmpty) {
+            return const InstructorDashboard();
+          }
+
+          return InstructorAssignmentListScreen(
+            courseId: courseId,
           );
         },
         '/completed-courses': (context) => const CompletedCoursesScreen(),

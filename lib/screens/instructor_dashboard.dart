@@ -237,7 +237,12 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
                 title: 'Submissions',
                 subtitle: 'Review and grade submissions',
                 icon: Icons.fact_check_outlined,
-                onTap: () {},
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/instructor-courses',
+                  );
+                },
               ),
               DashboardNavCard(
                 title: 'Profile',

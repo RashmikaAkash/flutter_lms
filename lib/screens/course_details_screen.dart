@@ -414,33 +414,19 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Curriculum',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Wrap(
-              spacing: 4,
+            Row(
               children: [
-                if (_currentEnrollmentId != null &&
-                    _currentEnrollmentId!.isNotEmpty)
-                  TextButton.icon(
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/student-quizzes',
-                        arguments: {
-                          'courseId': _course!.id,
-                        },
-                      );
-                    },
-                    icon: const Icon(Icons.quiz_outlined),
-                    label: const Text('Quizzes'),
+                Expanded(
+                  child: Text(
+                    'Curriculum',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
+                ),
                 TextButton(
                   onPressed: () {
                     Navigator.pushNamed(
@@ -456,6 +442,46 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                 ),
               ],
             ),
+            if (_currentEnrollmentId != null &&
+                _currentEnrollmentId!.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Wrap(
+                spacing: 4,
+                runSpacing: 4,
+                children: [
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/student-quizzes',
+                        arguments: {
+                          'courseId': _course!.id,
+                        },
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.quiz_outlined,
+                    ),
+                    label: const Text('Quizzes'),
+                  ),
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/student-assignments',
+                        arguments: {
+                          'courseId': _course!.id,
+                        },
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.assignment_outlined,
+                    ),
+                    label: const Text('Assignments'),
+                  ),
+                ],
+              ),
+            ],
           ],
         ),
         const SizedBox(height: 10),

@@ -115,9 +115,25 @@ class _StudentQuizDetailScreenState extends State<StudentQuizDetailScreen> {
       return;
     }
 
+    final quiz = _quizDetail?.quiz;
+
+    if (quiz == null) {
+      return;
+    }
+
+    if (_attempts.length >= quiz.maxAttempts) {
+      setState(() {
+        _startAttemptError = 'You have used all available quiz attempts.';
+      });
+
+      return;
+    }
+
     setState(() {
       _isStarting = true;
       _startAttemptError = null;
+      _submissionResult = null;
+      _selectedAnswers.clear();
     });
 
     try {
@@ -129,7 +145,24 @@ class _StudentQuizDetailScreenState extends State<StudentQuizDetailScreen> {
         return;
       }
 
+      final updatedAttempts = [..._attempts];
+
+      final existingIndex = updatedAttempts.indexWhere(
+        (item) => item.id == attempt.id,
+      );
+
+      if (existingIndex >= 0) {
+        updatedAttempts[existingIndex] = attempt;
+      } else {
+        updatedAttempts.add(attempt);
+      }
+
+      updatedAttempts.sort(
+        (a, b) => b.attemptNumber.compareTo(a.attemptNumber),
+      );
+
       setState(() {
+        _attempts = updatedAttempts;
         _quizAttempt = attempt;
       });
 
@@ -743,13 +776,27 @@ class _StudentQuizDetailScreenState extends State<StudentQuizDetailScreen> {
   }
 
   Widget _buildStartSection() {
-    if (_quizAttempt != null) {
+    final quiz = _quizDetail!.quiz;
+    final currentAttempt = _quizAttempt;
+    final attemptsUsed = _attempts.length;
+    final hasAttemptsRemaining = attemptsUsed < quiz.maxAttempts;
+
+    if (currentAttempt != null && currentAttempt.isInProgress) {
       return _buildAttemptCard();
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (currentAttempt != null) ...[
+          _buildAttemptCard(),
+          const SizedBox(height: 12),
+          Text(
+            'Attempts used: $attemptsUsed/${quiz.maxAttempts}',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 12),
+        ],
         if (_startAttemptError != null) ...[
           MessageWidget(
             title: 'Unable to start quiz',
@@ -758,21 +805,34 @@ class _StudentQuizDetailScreenState extends State<StudentQuizDetailScreen> {
           ),
           const SizedBox(height: 12),
         ],
-        FilledButton.icon(
-          onPressed: _isStarting ? null : _startAttempt,
-          icon: _isStarting
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
+        if (hasAttemptsRemaining)
+          FilledButton.icon(
+            onPressed: _isStarting ? null : _startAttempt,
+            icon: _isStarting
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  )
+                : const Icon(
+                    Icons.play_arrow_rounded,
                   ),
-                )
-              : const Icon(Icons.play_arrow_rounded),
-          label: Text(
-            _isStarting ? 'Starting Quiz...' : 'Start Quiz',
+            label: Text(
+              _isStarting
+                  ? 'Starting Quiz...'
+                  : currentAttempt == null
+                      ? 'Start Quiz'
+                      : 'Start New Attempt',
+            ),
+          )
+        else
+          const MessageWidget(
+            title: 'No attempts remaining',
+            message: 'You have used all available attempts for this quiz.',
+            type: MessageType.info,
           ),
-        ),
       ],
     );
   }

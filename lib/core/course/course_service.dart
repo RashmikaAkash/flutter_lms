@@ -18,6 +18,12 @@ import '../models/quiz/quiz_attempt.dart';
 import '../models/quiz/quiz_answer.dart';
 import 'quiz_attempt_page.dart';
 import '../models/quiz/quiz_submission_result.dart';
+import '../models/assignment/assignment.dart';
+import 'package:dio/dio.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
+import '../models/assignment/assignment_submission.dart';
+import '../models/assignment/instructor_assignment_submission_page.dart';
 
 class CourseService {
   CourseService({
@@ -315,6 +321,336 @@ class CourseService {
     }
 
     return CoursePage.fromJson(data);
+  }
+
+  Future<CoursePage> getInstructorCourses({
+    int page = 1,
+    int limit = 20,
+    String? status,
+  }) async {
+    final queryParameters = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+    };
+
+    if (status != null && status.isNotEmpty) {
+      queryParameters['status'] = status;
+    }
+
+    final response = await _apiClient.get(
+      '/api/v1/courses/instructor/me',
+      queryParameters: queryParameters,
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid instructor courses response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Instructor courses data is unavailable',
+      );
+    }
+
+    return CoursePage.fromJson(
+      Map<String, dynamic>.from(data),
+    );
+  }
+
+  Future<List<Assignment>> getInstructorAssignments(
+    String courseId,
+  ) async {
+    final response = await _apiClient.get(
+      '/api/v1/courses/$courseId/assignments/instructor',
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid instructor assignments response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Instructor assignments data is unavailable',
+      );
+    }
+
+    final rawAssignments = data['assignments'];
+
+    if (rawAssignments is! List) {
+      return const [];
+    }
+
+    return rawAssignments
+        .whereType<Map>()
+        .map(
+          (item) => Assignment.fromJson(
+            Map<String, dynamic>.from(item),
+          ),
+        )
+        .toList();
+  }
+
+  Future<List<Assignment>> getStudentAssignments(
+    String courseId,
+  ) async {
+    final response = await _apiClient.get(
+      '/api/v1/courses/$courseId/assignments',
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid assignments response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Assignment data is unavailable',
+      );
+    }
+
+    final rawAssignments = data['assignments'];
+
+    if (rawAssignments is! List) {
+      return const [];
+    }
+
+    return rawAssignments
+        .whereType<Map>()
+        .map(
+          (item) => Assignment.fromJson(
+            Map<String, dynamic>.from(item),
+          ),
+        )
+        .toList();
+  }
+
+  Future<Assignment> getStudentAssignment(
+    String assignmentId,
+  ) async {
+    final response = await _apiClient.get(
+      '/api/v1/assignments/$assignmentId',
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid assignment response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Assignment data is unavailable',
+      );
+    }
+
+    final assignment = data['assignment'];
+
+    if (assignment is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Assignment details were not returned',
+      );
+    }
+
+    return Assignment.fromJson(
+      Map<String, dynamic>.from(assignment),
+    );
+  }
+
+  Future<AssignmentSubmission> submitAssignment({
+    required String assignmentId,
+    required String textAnswer,
+    required String filePath,
+  }) async {
+    final mimeType = lookupMimeType(filePath);
+
+    final contentType = mimeType != null ? MediaType.parse(mimeType) : null;
+
+    final file = await MultipartFile.fromFile(
+      filePath,
+      filename: filePath.split(RegExp(r'[\\/]')).last,
+      contentType: contentType,
+    );
+
+    final formData = FormData.fromMap({
+      'textAnswer': textAnswer,
+      'file': file,
+    });
+
+    final response = await _apiClient.post(
+      '/api/v1/assignments/$assignmentId/submissions',
+      data: formData,
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid assignment submission response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Assignment submission data is unavailable',
+      );
+    }
+
+    final submission = data['submission'];
+
+    if (submission is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Assignment submission was not returned',
+      );
+    }
+
+    return AssignmentSubmission.fromJson(
+      Map<String, dynamic>.from(submission),
+    );
+  }
+
+  Future<AssignmentSubmission?> getMyAssignmentSubmission(
+    String assignmentId,
+  ) async {
+    try {
+      final response = await _apiClient.get(
+        '/api/v1/assignments/$assignmentId/submission/me',
+        requiresAuth: true,
+      );
+
+      final responseData = response.data;
+
+      if (responseData is! Map<String, dynamic>) {
+        throw const ApiException(
+          message: 'Invalid assignment submission response',
+        );
+      }
+
+      final data = responseData['data'];
+
+      if (data is! Map<String, dynamic>) {
+        throw const ApiException(
+          message: 'Assignment submission data is unavailable',
+        );
+      }
+
+      final submission = data['submission'];
+
+      if (submission is! Map<String, dynamic>) {
+        return null;
+      }
+
+      return AssignmentSubmission.fromJson(
+        Map<String, dynamic>.from(submission),
+      );
+    } on ApiException catch (error) {
+      if (error.statusCode == 404) {
+        return null;
+      }
+
+      rethrow;
+    }
+  }
+
+  Future<InstructorAssignmentSubmissionPage>
+      getInstructorAssignmentSubmissions({
+    required String assignmentId,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    final response = await _apiClient.get(
+      '/api/v1/assignments/$assignmentId/submissions',
+      queryParameters: {
+        'page': page,
+        'limit': limit,
+      },
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid assignment submissions response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Assignment submissions data is unavailable',
+      );
+    }
+
+    return InstructorAssignmentSubmissionPage.fromJson(
+      Map<String, dynamic>.from(data),
+    );
+  }
+
+  Future<AssignmentSubmission> replaceAssignmentSubmissionFile({
+    required String submissionId,
+    required String filePath,
+  }) async {
+    final fileName = filePath.split(RegExp(r'[\\/]')).last;
+    final mimeType = lookupMimeType(filePath);
+
+    final MediaType? contentType =
+        mimeType != null ? MediaType.parse(mimeType) : null;
+
+    final file = await MultipartFile.fromFile(
+      filePath,
+      filename: fileName,
+      contentType: contentType,
+    );
+
+    final formData = FormData.fromMap({
+      'file': file,
+    });
+
+    final response = await _apiClient.post(
+      '/api/v1/submissions/$submissionId/file',
+      data: formData,
+      requiresAuth: true,
+    );
+
+    final data = response.data['data'];
+    final submission = data is Map<String, dynamic> ? data['submission'] : null;
+
+    if (submission is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid assignment submission response',
+      );
+    }
+
+    return AssignmentSubmission.fromJson(submission);
   }
 
   Future<QuizAttemptPage> getStudentAttempts({
