@@ -1,17 +1,97 @@
 import 'package:flutter/material.dart';
+
+import '../core/auth/auth_service.dart';
+import '../core/course/course_service.dart';
+import '../core/errors/api_exception.dart';
+import '../core/models/course/course_enrollment.dart';
 import '../widgets/dashboard_card.dart';
 import '../widgets/dashboard_nav_card.dart';
+import '../widgets/message_widget.dart';
 import '../widgets/section_header.dart';
-import '../core/auth/auth_service.dart';
-import '../core/errors/api_exception.dart';
 
-class StudentDashboard extends StatelessWidget {
+class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
+
+  @override
+  State<StudentDashboard> createState() => _StudentDashboardState();
+}
+
+class _StudentDashboardState extends State<StudentDashboard> {
+  final CourseService _courseService = CourseService();
+
+  List<CourseEnrollment> _enrollments = [];
+
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDashboardData();
+  }
+
+  Future<void> _loadDashboardData() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      const limit = 20;
+      var page = 1;
+      final allEnrollments = <CourseEnrollment>[];
+
+      while (true) {
+        final result = await _courseService.getMyEnrollments(
+          page: page,
+          limit: limit,
+        );
+
+        allEnrollments.addAll(result.enrollments);
+
+        if (!result.pagination.hasNextPage) {
+          break;
+        }
+
+        page++;
+      }
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _enrollments = allEnrollments;
+      });
+    } on ApiException catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _errorMessage = error.message;
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _errorMessage = 'Unable to load dashboard data. Please try again.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   Future<void> _handleLogout(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Logout'),
           content: const Text(
@@ -20,13 +100,13 @@ class StudentDashboard extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context, false);
+                Navigator.pop(dialogContext, false);
               },
               child: const Text('Cancel'),
             ),
             FilledButton(
               onPressed: () {
-                Navigator.pop(context, true);
+                Navigator.pop(dialogContext, true);
               },
               child: const Text('Logout'),
             ),
@@ -141,6 +221,213 @@ class StudentDashboard extends StatelessWidget {
     }
   }
 
+  List<CourseEnrollment> get _activeEnrollments {
+    return _enrollments
+        .where(
+          (enrollment) => enrollment.progressPercentage < 100,
+        )
+        .toList();
+  }
+
+  int get _completedCount {
+    return _enrollments
+        .where(
+          (enrollment) => enrollment.progressPercentage >= 100,
+        )
+        .length;
+  }
+
+  Future<void> _openAndRefresh(
+    String route, {
+    Object? arguments,
+  }) async {
+    await Navigator.pushNamed(
+      context,
+      route,
+      arguments: arguments,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    await _loadDashboardData();
+  }
+
+  Widget _buildContinueLearning() {
+    final courses = _activeEnrollments.take(2).toList();
+
+    if (courses.isEmpty) {
+      return const MessageWidget(
+        title: 'No active courses',
+        message: 'Enroll in a course to start learning.',
+        type: MessageType.info,
+      );
+    }
+
+    return Column(
+      children: courses.map(
+        (enrollment) {
+          final progress = enrollment.progressPercentage.clamp(
+            0,
+            100,
+          );
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: DashboardNavCard(
+              title: enrollment.courseTitle.isEmpty
+                  ? 'Course'
+                  : enrollment.courseTitle,
+              subtitle: '${progress.toStringAsFixed(0)}% completed',
+              icon: Icons.menu_book_outlined,
+              onTap: () => _openAndRefresh(
+                '/course-details',
+                arguments: {
+                  'courseId': enrollment.courseId,
+                  'showEnrollButton': false,
+                  'enrollmentId': enrollment.id,
+                },
+              ),
+            ),
+          );
+        },
+      ).toList(),
+    );
+  }
+
+  Widget _buildDashboardContent() {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: MessageWidget(
+            title: 'Unable to load dashboard',
+            message: _errorMessage!,
+            type: MessageType.error,
+            actionLabel: 'Retry',
+            onActionPressed: _loadDashboardData,
+          ),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadDashboardData,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Welcome back, Student!',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Continue your learning journey.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 20),
+            GridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              childAspectRatio: 1.45,
+              children: [
+                DashboardCard(
+                  title: 'Enrolled Courses',
+                  value: _enrollments.length.toString(),
+                  icon: Icons.menu_book_outlined,
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/my-courses',
+                    );
+                  },
+                ),
+                DashboardCard(
+                  title: 'Completed',
+                  value: _completedCount.toString(),
+                  icon: Icons.check_circle_outline,
+                  onTap: () => _openAndRefresh('/completed-courses'),
+                ),
+                const DashboardCard(
+                  title: 'Quizzes',
+                  value: '—',
+                  icon: Icons.quiz_outlined,
+                ),
+                const DashboardCard(
+                  title: 'Assignments',
+                  value: '—',
+                  icon: Icons.assignment_outlined,
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            const SectionHeader(
+              title: 'Continue Learning',
+              actionLabel: 'View All',
+            ),
+            const SizedBox(height: 10),
+            _buildContinueLearning(),
+            const SizedBox(height: 24),
+            const SectionHeader(
+              title: 'Quick Access',
+              actionLabel: 'View All',
+            ),
+            const SizedBox(height: 10),
+            DashboardNavCard(
+              title: 'Browse Courses',
+              subtitle: 'Explore published courses',
+              icon: Icons.explore_outlined,
+              onTap: () => _openAndRefresh('/course-browse'),
+            ),
+            const SizedBox(height: 10),
+            DashboardNavCard(
+              title: 'My Courses',
+              subtitle: 'View enrolled courses',
+              icon: Icons.library_books_outlined,
+              onTap: () => _openAndRefresh('/my-courses'),
+            ),
+            const SizedBox(height: 10),
+            DashboardNavCard(
+              title: 'Quizzes',
+              subtitle: 'View available quizzes',
+              icon: Icons.quiz_outlined,
+              onTap: () {},
+            ),
+            const SizedBox(height: 10),
+            DashboardNavCard(
+              title: 'Assignments',
+              subtitle: 'View and submit assignments',
+              icon: Icons.assignment_outlined,
+              onTap: () {},
+            ),
+            const SizedBox(height: 10),
+            DashboardNavCard(
+              title: 'Notifications',
+              subtitle: 'Check recent notifications',
+              icon: Icons.notifications_outlined,
+              onTap: () {},
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -190,141 +477,7 @@ class StudentDashboard extends StatelessWidget {
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Welcome back, Student!',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Continue your learning journey.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 20),
-              GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                childAspectRatio: 1.45,
-                children: [
-                  DashboardCard(
-                    title: 'Enrolled Courses',
-                    value: '8',
-                    icon: Icons.menu_book_outlined,
-                    onTap: () {},
-                  ),
-                  DashboardCard(
-                    title: 'Completed',
-                    value: '3',
-                    icon: Icons.check_circle_outline,
-                    onTap: () {},
-                  ),
-                  DashboardCard(
-                    title: 'Quizzes',
-                    value: '12',
-                    icon: Icons.quiz_outlined,
-                    onTap: () {},
-                  ),
-                  DashboardCard(
-                    title: 'Assignments',
-                    value: '5',
-                    icon: Icons.assignment_outlined,
-                    onTap: () {},
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              const SectionHeader(
-                title: 'Continue Learning',
-                actionLabel: 'View All',
-              ),
-              const SizedBox(height: 10),
-              DashboardNavCard(
-                title: 'Flutter Mobile Development',
-                subtitle: 'Continue from Lesson 6',
-                icon: Icons.phone_android,
-                onTap: () {},
-              ),
-              const SizedBox(height: 10),
-              DashboardNavCard(
-                title: 'Dart Programming',
-                subtitle: 'Continue from Module 3',
-                icon: Icons.code,
-                onTap: () {},
-              ),
-              const SizedBox(height: 24),
-              const SectionHeader(
-                title: 'Quick Access',
-                actionLabel: 'View All',
-              ),
-              const SizedBox(height: 10),
-              DashboardNavCard(
-                title: 'My Courses',
-                subtitle: 'View enrolled courses',
-                icon: Icons.library_books_outlined,
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/my-courses',
-                  );
-                },
-              ),
-              const SectionHeader(
-                title: 'Quick Access',
-                actionLabel: 'View All',
-              ),
-              const SizedBox(height: 10),
-              DashboardNavCard(
-                title: 'Browse Courses',
-                subtitle: 'Explore published courses',
-                icon: Icons.explore_outlined,
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/course-browse',
-                  );
-                },
-              ),
-              DashboardNavCard(
-                title: 'My Courses',
-                subtitle: 'View enrolled courses',
-                icon: Icons.library_books_outlined,
-                onTap: () {
-                  Navigator.pushNamed(
-                    context,
-                    '/my-courses',
-                  );
-                },
-              ),
-              DashboardNavCard(
-                title: 'Quizzes',
-                subtitle: 'View available quizzes',
-                icon: Icons.quiz_outlined,
-                onTap: () {},
-              ),
-              DashboardNavCard(
-                title: 'Assignments',
-                subtitle: 'View and submit assignments',
-                icon: Icons.assignment_outlined,
-                onTap: () {},
-              ),
-              DashboardNavCard(
-                title: 'Notifications',
-                subtitle: 'Check recent notifications',
-                icon: Icons.notifications_outlined,
-                onTap: () {},
-              ),
-            ],
-          ),
-        ),
+        child: _buildDashboardContent(),
       ),
     );
   }
