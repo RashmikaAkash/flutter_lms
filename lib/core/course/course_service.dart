@@ -615,6 +615,23 @@ class CourseService {
     );
   }
 
+  Future<void> gradeAssignmentSubmission({
+    required String submissionId,
+    required double marksAwarded,
+    required String feedback,
+    required String status,
+  }) async {
+    await _apiClient.patch(
+      '/api/v1/submissions/$submissionId/grade',
+      data: {
+        'marksAwarded': marksAwarded,
+        'feedback': feedback,
+        'status': status,
+      },
+      requiresAuth: true,
+    );
+  }
+
   Future<AssignmentSubmission> replaceAssignmentSubmissionFile({
     required String submissionId,
     required String filePath,

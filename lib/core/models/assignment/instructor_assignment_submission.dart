@@ -9,6 +9,8 @@ class InstructorAssignmentSubmission {
     required this.status,
     this.fileUrl,
     this.fileName,
+    this.marksAwarded,
+    this.feedback,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -22,14 +24,16 @@ class InstructorAssignmentSubmission {
   final String status;
   final String? fileUrl;
   final String? fileName;
+  final double? marksAwarded;
+  final String? feedback;
   final DateTime createdAt;
   final DateTime updatedAt;
 
   bool get isGraded => status == 'GRADED';
 
   factory InstructorAssignmentSubmission.fromJson(
-      Map<String, dynamic> json,
-      ) {
+    Map<String, dynamic> json,
+  ) {
     final rawStudent = json['studentId'];
 
     final studentMap = rawStudent is Map
@@ -48,6 +52,8 @@ class InstructorAssignmentSubmission {
       status: json['status']?.toString() ?? '',
       fileUrl: json['fileUrl']?.toString(),
       fileName: json['fileName']?.toString(),
+      marksAwarded: _parseDouble(json['marksAwarded']),
+      feedback: json['feedback']?.toString(),
       createdAt: DateTime.parse(
         json['createdAt'] as String,
       ),
@@ -55,6 +61,18 @@ class InstructorAssignmentSubmission {
         json['updatedAt'] as String,
       ),
     );
+  }
+
+  static double? _parseDouble(dynamic value) {
+    if (value is num) {
+      return value.toDouble();
+    }
+
+    if (value is String && value.trim().isNotEmpty) {
+      return double.tryParse(value);
+    }
+
+    return null;
   }
 }
 
@@ -77,8 +95,8 @@ class InstructorSubmissionStudent {
   }
 
   factory InstructorSubmissionStudent.fromJson(
-      Map<String, dynamic> json,
-      ) {
+    Map<String, dynamic> json,
+  ) {
     return InstructorSubmissionStudent(
       id: json['id']?.toString() ?? '',
       firstName: json['firstName']?.toString() ?? '',

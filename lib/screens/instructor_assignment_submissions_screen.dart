@@ -90,6 +90,186 @@ class _InstructorAssignmentSubmissionsScreenState
     return '$year-$month-$day $hour:$minute';
   }
 
+  Future<void> _showGradeDialog(
+    InstructorAssignmentSubmission submission,
+  ) async {
+    final marksController = TextEditingController();
+    final feedbackController = TextEditingController();
+
+    String selectedStatus = 'GRADED';
+
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Grade Submission'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      submission.student.fullName,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: marksController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: const InputDecoration(
+                        labelText: 'Marks Awarded',
+                        hintText: 'Enter marks',
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    DropdownButtonFormField<String>(
+                      value: selectedStatus,
+                      decoration: const InputDecoration(
+                        labelText: 'Status',
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'GRADED',
+                          child: Text('GRADED'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'RESUBMISSION_REQUIRED',
+                          child: Text('RESUBMISSION REQUIRED'),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (value == null) {
+                          return;
+                        }
+
+                        setDialogState(() {
+                          selectedStatus = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 14),
+                    TextField(
+                      controller: feedbackController,
+                      maxLines: 4,
+                      decoration: const InputDecoration(
+                        labelText: 'Feedback',
+                        hintText: 'Enter feedback for the student',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    final marksText = marksController.text.trim();
+                    final marksAwarded = double.tryParse(marksText);
+
+                    if (marksAwarded == null || marksAwarded < 0) {
+                      ScaffoldMessenger.of(dialogContext).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Enter a valid marks value.',
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+
+                    Navigator.of(dialogContext).pop({
+                      'marksAwarded': marksAwarded,
+                      'feedback': feedbackController.text.trim(),
+                      'status': selectedStatus,
+                    });
+                  },
+                  child: const Text('Save Grade'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (result == null || !mounted) {
+      marksController.dispose();
+      feedbackController.dispose();
+      return;
+    }
+
+    // Let the dialog route finish its removal before changing
+    // the underlying submission screen.
+    await WidgetsBinding.instance.endOfFrame;
+
+    marksController.dispose();
+    feedbackController.dispose();
+
+    if (!mounted) {
+      return;
+    }
+
+    try {
+      await _courseService.gradeAssignmentSubmission(
+        submissionId: submission.id,
+        marksAwarded: result['marksAwarded'] as double,
+        feedback: result['feedback'] as String,
+        status: result['status'] as String,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      await _loadSubmissions();
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Assignment submission graded successfully.',
+          ),
+        ),
+      );
+    } on ApiException catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Unable to grade the submission. Please try again.',
+          ),
+        ),
+      );
+    }
+  }
+
   Widget _buildSubmissionCard(
     InstructorAssignmentSubmission submission,
   ) {
@@ -224,6 +404,61 @@ class _InstructorAssignmentSubmissionsScreenState
               SelectableText(
                 submission.fileUrl!,
                 style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+            if (submission.isGraded) ...[
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Grade',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    const SizedBox(height: 8),
+                    if (submission.marksAwarded != null)
+                      Text(
+                        'Marks Awarded: '
+                        '${submission.marksAwarded!.toStringAsFixed(0)}',
+                      ),
+                    if (submission.feedback != null &&
+                        submission.feedback!.trim().isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'Feedback',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(submission.feedback!),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+            if (!submission.isGraded) ...[
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () => _showGradeDialog(submission),
+                  icon: const Icon(
+                    Icons.rate_review_outlined,
+                  ),
+                  label: const Text('Grade Submission'),
+                ),
               ),
             ],
           ],
