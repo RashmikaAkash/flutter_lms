@@ -143,6 +143,7 @@ class ApiClient {
       return ApiException.fromStatusCode(
         statusCode: statusCode ?? 0,
         message: message,
+        responseBody: response.data,
       );
     }
 

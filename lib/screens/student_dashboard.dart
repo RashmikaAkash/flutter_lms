@@ -259,10 +259,32 @@ class _StudentDashboardState extends State<StudentDashboard> {
     final courses = _activeEnrollments.take(2).toList();
 
     if (courses.isEmpty) {
-      return const MessageWidget(
-        title: 'No active courses',
-        message: 'Enroll in a course to start learning.',
-        type: MessageType.info,
+      final colors = Theme.of(context).colorScheme;
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: colors.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: colors.outlineVariant),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.auto_stories_outlined, color: colors.primary, size: 28),
+            const SizedBox(height: 12),
+            Text('No active courses', style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 4),
+            Text('Browse courses and enroll to begin learning.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant)),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () => _openAndRefresh('/course-browse'),
+              icon: const Icon(Icons.explore_outlined),
+              label: const Text('Browse courses'),
+            ),
+          ],
+        ),
       );
     }
 
@@ -299,8 +321,18 @@ class _StudentDashboardState extends State<StudentDashboard> {
 
   Widget _buildDashboardContent() {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text('Loading your learning space',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    )),
+          ],
+        ),
       );
     }
 
@@ -323,31 +355,53 @@ class _StudentDashboardState extends State<StudentDashboard> {
       onRefresh: _loadDashboardData,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Welcome back, Student!',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 880),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.48),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('YOUR LEARNING SPACE',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            letterSpacing: 1.1,
+                            fontWeight: FontWeight.w600,
+                          )),
+                  const SizedBox(height: 8),
+                  Text('Welcome back, Student',
+                      style: Theme.of(context).textTheme.headlineSmall),
+                  const SizedBox(height: 4),
+                  Text('Continue your learning journey.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          )),
+                ],
+              ),
             ),
-            const SizedBox(height: 6),
-            Text(
-              'Continue your learning journey.',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             LayoutBuilder(
               builder: (context, constraints) {
+                final compact = constraints.maxWidth < 350;
                 return GridView.count(
-                  crossAxisCount: 2,
+                  crossAxisCount: compact ? 1 : 2,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  childAspectRatio: constraints.maxWidth < 310 ? 0.9 : 1.2,
+                  // Keep enough vertical room for the icon, wrapped title, and
+                  // value inside DashboardCard on short and narrow screens.
+                  childAspectRatio: compact ? 1.8 : 1.05,
                   children: [
                     DashboardCard(
                       title: 'Enrolled Courses',
@@ -415,7 +469,9 @@ class _StudentDashboardState extends State<StudentDashboard> {
               icon: Icons.notifications_outlined,
               onTap: () => _openAndRefresh('/notifications'),
             ),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );

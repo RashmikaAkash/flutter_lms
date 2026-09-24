@@ -25,6 +25,7 @@ import 'screens/student_assignment_list_screen.dart';
 import 'screens/student_assignment_detail_screen.dart';
 import 'screens/instructor_assignment_submissions_screen.dart';
 import 'screens/instructor_course_list_screen.dart';
+import 'screens/instructor_create_course_screen.dart';
 import 'screens/instructor_assignment_list_screen.dart';
 import 'screens/instructor_quiz_list_screen.dart';
 import 'screens/instructor_quiz_detail_screen.dart';
@@ -435,6 +436,9 @@ class FlutterLmsApp extends StatelessWidget {
         },
         '/instructor-courses': (context) {
           return const InstructorCourseListScreen();
+        },
+        '/instructor-create-course': (context) {
+          return const InstructorCreateCourseScreen();
         },
         '/instructor-assignment-list': (context) {
           final courseId =

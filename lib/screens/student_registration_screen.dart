@@ -286,7 +286,7 @@ class _StudentRegistrationScreenState extends State<StudentRegistrationScreen> {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
-              horizontal: 24,
+              horizontal: 20,
               vertical: 24,
             ),
             child: ConstrainedBox(
@@ -300,7 +300,10 @@ class _StudentRegistrationScreenState extends State<StudentRegistrationScreen> {
                   children: [
                     Text(
                       'Student Registration',
-                      style: theme.textTheme.headlineSmall,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.3,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -310,6 +313,12 @@ class _StudentRegistrationScreenState extends State<StudentRegistrationScreen> {
                       ),
                     ),
                     const SizedBox(height: 28),
+                    _sectionHeading(
+                      context,
+                      icon: Icons.person_outline,
+                      title: 'Personal information',
+                    ),
+                    const SizedBox(height: 16),
                     LoginTextField(
                       controller: _firstNameController,
                       label: 'First Name',
@@ -328,6 +337,29 @@ class _StudentRegistrationScreenState extends State<StudentRegistrationScreen> {
                       textInputAction: TextInputAction.next,
                       validator: (value) =>
                           _validateRequired(value, 'Last name'),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _dateOfBirthController,
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: 'Date of Birth',
+                        hintText: 'YYYY-MM-DD',
+                        prefixIcon: const Icon(Icons.calendar_today_outlined),
+                        suffixIcon: IconButton(
+                          tooltip: 'Select date',
+                          icon: const Icon(Icons.calendar_month_outlined),
+                          onPressed: _selectDateOfBirth,
+                        ),
+                      ),
+                      validator: _validateDateOfBirth,
+                      onTap: _selectDateOfBirth,
+                    ),
+                    const SizedBox(height: 24),
+                    _sectionHeading(
+                      context,
+                      icon: Icons.lock_outline,
+                      title: 'Account security',
                     ),
                     const SizedBox(height: 16),
                     LoginTextField(
@@ -389,22 +421,11 @@ class _StudentRegistrationScreenState extends State<StudentRegistrationScreen> {
                         },
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _dateOfBirthController,
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        labelText: 'Date of Birth',
-                        hintText: 'YYYY-MM-DD',
-                        prefixIcon: const Icon(Icons.calendar_today_outlined),
-                        suffixIcon: IconButton(
-                          tooltip: 'Select date',
-                          icon: const Icon(Icons.calendar_month_outlined),
-                          onPressed: _selectDateOfBirth,
-                        ),
-                      ),
-                      validator: _validateDateOfBirth,
-                      onTap: _selectDateOfBirth,
+                    const SizedBox(height: 24),
+                    _sectionHeading(
+                      context,
+                      icon: Icons.school_outlined,
+                      title: 'Learning profile',
                     ),
                     const SizedBox(height: 16),
                     LoginTextField(
@@ -457,6 +478,36 @@ class _StudentRegistrationScreenState extends State<StudentRegistrationScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _sectionHeading(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+  }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: colorScheme.primary),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Divider(
+            height: 1,
+            color: colorScheme.outlineVariant,
+          ),
+        ),
+      ],
     );
   }
 }

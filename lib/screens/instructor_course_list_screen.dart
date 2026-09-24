@@ -4,6 +4,7 @@ import '../core/course/course_page.dart';
 import '../core/course/course_service.dart';
 import '../core/errors/api_exception.dart';
 import '../core/models/course/course.dart';
+import 'instructor_create_course_screen.dart';
 import '../widgets/message_widget.dart';
 
 class InstructorCourseListScreen extends StatefulWidget {
@@ -41,7 +42,6 @@ class _InstructorCourseListScreenState
       final result = await _courseService.getInstructorCourses(
         page: 1,
         limit: 20,
-        status: 'PUBLISHED',
       );
 
       if (!mounted) {
@@ -71,6 +71,21 @@ class _InstructorCourseListScreenState
         _errorMessage = 'Unable to load your courses. Please try again.';
       });
     }
+  }
+
+  Future<void> _openCreateCourse() async {
+    final created = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute<bool>(
+        builder: (context) => const InstructorCreateCourseScreen(),
+      ),
+    );
+
+    if (created != true || !mounted) {
+      return;
+    }
+
+    await _loadCourses();
   }
 
   Widget _buildCourseCard(Course course) {
@@ -113,7 +128,9 @@ class _InstructorCourseListScreenState
                       size: 18,
                     ),
                     label: Text(
-                      course.status.isEmpty ? 'PUBLISHED' : course.status,
+                      course.status.isEmpty
+                          ? 'Status unavailable'
+                          : course.status,
                     ),
                   ),
                   Chip(
@@ -209,13 +226,14 @@ class _InstructorCourseListScreenState
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(24),
-          children: const [
-            SizedBox(height: 80),
+          children: [
+            const SizedBox(height: 80),
             MessageWidget(
-              title: 'No published courses',
-              message:
-                  'You do not have any published courses with submissions available yet.',
+              title: 'No courses yet',
+              message: 'Create a course to start building your catalogue.',
               type: MessageType.info,
+              actionLabel: 'Create course',
+              onActionPressed: _openCreateCourse,
             ),
           ],
         ),
@@ -249,7 +267,17 @@ class _InstructorCourseListScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Published Courses'),
+        title: const Text('My Courses'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: FilledButton.icon(
+              onPressed: _openCreateCourse,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Create Course'),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: _buildContent(),

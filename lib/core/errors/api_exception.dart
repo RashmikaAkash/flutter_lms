@@ -1,13 +1,40 @@
+import 'dart:convert';
+
 class ApiException implements Exception {
   const ApiException({
     required this.message,
     this.statusCode,
     this.code,
+    this.responseBody,
   });
 
   final String message;
   final int? statusCode;
   final String? code;
+  /// The unmodified response body returned by the server, when available.
+  final dynamic responseBody;
+
+  String get diagnosticDetails {
+    final body = responseBody;
+    if (body == null) return message;
+
+    String formattedBody;
+    if (body is String) {
+      try {
+        formattedBody = const JsonEncoder.withIndent('  ').convert(jsonDecode(body));
+      } on FormatException {
+        formattedBody = body;
+      }
+    } else {
+      try {
+        formattedBody = const JsonEncoder.withIndent('  ').convert(body);
+      } on JsonUnsupportedObjectError {
+        formattedBody = body.toString();
+      }
+    }
+
+    return 'HTTP ${statusCode ?? 'unknown'}\n$formattedBody';
+  }
 
   bool get isUnauthorized => statusCode == 401;
 
@@ -16,10 +43,12 @@ class ApiException implements Exception {
   factory ApiException.fromStatusCode({
     required int statusCode,
     String? message,
+    dynamic responseBody,
   }) {
     return ApiException(
       statusCode: statusCode,
       message: message ?? _defaultMessage(statusCode),
+      responseBody: responseBody,
     );
   }
 

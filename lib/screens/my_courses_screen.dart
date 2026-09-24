@@ -108,6 +108,7 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
     CourseEnrollment enrollment,
   ) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     final progress = enrollment.progressPercentage.clamp(
       0,
@@ -124,11 +125,11 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                width: 82,
-                height: 82,
+                width: 88,
+                height: 88,
                 decoration: BoxDecoration(
                   color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: enrollment.thumbnailUrl != null
@@ -158,33 +159,52 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
                           : enrollment.courseTitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                      style: textTheme.titleMedium,
                     ),
-                    const SizedBox(height: 6),
-                    if (enrollment.courseLevel.isNotEmpty)
-                      Text(
-                        enrollment.courseLevel,
-                        style: Theme.of(context).textTheme.bodySmall,
+                    if (enrollment.courseLevel.isNotEmpty ||
+                        enrollment.courseLanguage.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        children: [
+                          if (enrollment.courseLevel.isNotEmpty)
+                            _buildDetailTag(
+                              Icons.signal_cellular_alt_outlined,
+                              enrollment.courseLevel,
+                            ),
+                          if (enrollment.courseLanguage.isNotEmpty)
+                            _buildDetailTag(
+                              Icons.language_outlined,
+                              enrollment.courseLanguage,
+                            ),
+                        ],
                       ),
-                    if (enrollment.courseLanguage.isNotEmpty)
-                      Text(
-                        enrollment.courseLanguage,
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    const SizedBox(height: 10),
+                    ],
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            'Course progress',
+                            style: textTheme.labelMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          '${progress.toStringAsFixed(0)}%',
+                          style: textTheme.labelLarge?.copyWith(
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 7),
                     LinearProgressIndicator(
                       value: progress / 100,
-                      minHeight: 7,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '${progress.toStringAsFixed(0)}% completed',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
+                      minHeight: 8,
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ],
                 ),
@@ -198,6 +218,35 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
     );
   }
 
+  Widget _buildDetailTag(IconData icon, String label) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 180),
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(9),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 15, color: colors.onSurfaceVariant),
+          const SizedBox(width: 5),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPagination() {
     final pagination = _enrollmentPage?.pagination;
 
@@ -207,8 +256,11 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(top: 18),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8,
+        runSpacing: 8,
         children: [
           OutlinedButton.icon(
             onPressed: pagination.hasPreviousPage && !_isLoading
@@ -219,11 +271,9 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
             icon: const Icon(Icons.chevron_left),
             label: const Text('Previous'),
           ),
-          const SizedBox(width: 12),
           Text(
             'Page $_currentPage of ${pagination.totalPages}',
           ),
-          const SizedBox(width: 12),
           OutlinedButton.icon(
             onPressed: pagination.hasNextPage && !_isLoading
                 ? () => _loadEnrollments(
@@ -240,8 +290,20 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
 
   Widget _buildContent() {
     if (_isLoading && _enrollmentPage == null) {
-      return const Center(
-        child: CircularProgressIndicator(),
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 14),
+            Text(
+              'Loading your courses',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
       );
     }
 
@@ -273,40 +335,112 @@ class _MyCoursesScreenState extends State<MyCoursesScreen> {
         page: _currentPage,
       ),
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
         children: [
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () {
-                Navigator.pushNamed(
-                  context,
-                  '/completed-courses',
-                );
-              },
-              icon: const Icon(
-                Icons.emoji_events_outlined,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Your learning',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Pick up where you left off.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
               ),
-              label: const Text(
-                'View Completed Courses',
+              SizedBox(
+                width: 176,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/completed-courses',
+                    );
+                  },
+                  icon: const Icon(Icons.emoji_events_outlined),
+                  label: const Text('Completed'),
+                ),
               ),
-            ),
+            ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            '${enrollments.length} active course(s)',
-            style: Theme.of(context).textTheme.titleMedium,
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'In progress',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 11,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${enrollments.length} active',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color:
+                            Theme.of(context).colorScheme.onSecondaryContainer,
+                      ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 14),
-          if (enrollments.isEmpty)
+          if (enrollments.isEmpty) ...[
             const MessageWidget(
               title: 'No active courses',
               message: 'You do not have any courses in progress. '
                   'Completed courses can be viewed separately.',
               type: MessageType.info,
-            )
-          else
-            ...enrollments.map(_buildCourseCard),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.pushNamed(context, '/course-browse');
+              },
+              icon: const Icon(Icons.explore_outlined),
+              label: const Text('Browse courses'),
+            ),
+          ] else
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final twoColumns = constraints.maxWidth >= 680;
+                final cardWidth = twoColumns
+                    ? ((constraints.maxWidth - 16) / 2).clamp(0, 560).toDouble()
+                    : constraints.maxWidth;
+                return Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 16,
+                  runSpacing: 14,
+                  children: enrollments
+                      .map(
+                        (enrollment) => SizedBox(
+                          width: cardWidth,
+                          child: _buildCourseCard(enrollment),
+                        ),
+                      )
+                      .toList(),
+                );
+              },
+            ),
           _buildPagination(),
           if (_isLoading)
             const Padding(

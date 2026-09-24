@@ -364,6 +364,43 @@ class CourseService {
     );
   }
 
+  Future<void> createInstructorCourse({
+    required String categoryId,
+    required String title,
+    required String shortDescription,
+    required String description,
+    required String level,
+    required String language,
+    required List<String> requirements,
+    required List<String> learningOutcomes,
+    required List<String> targetAudience,
+  }) async {
+    await _apiClient.post(
+      '/api/v1/courses',
+      data: {
+        'categoryId': categoryId,
+        'title': title.trim(),
+        'shortDescription': shortDescription.trim(),
+        'description': description.trim(),
+        'level': level,
+        'language': language.trim(),
+        'requirements': requirements
+            .map((item) => item.trim())
+            .where((item) => item.isNotEmpty)
+            .toList(),
+        'learningOutcomes': learningOutcomes
+            .map((item) => item.trim())
+            .where((item) => item.isNotEmpty)
+            .toList(),
+        'targetAudience': targetAudience
+            .map((item) => item.trim())
+            .where((item) => item.isNotEmpty)
+            .toList(),
+      },
+      requiresAuth: true,
+    );
+  }
+
   Future<void> createInstructorAssignment({
     required String courseId,
     required String sectionId,

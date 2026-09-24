@@ -117,11 +117,24 @@ class _CourseBrowseScreenState extends State<CourseBrowseScreen> {
 
   Widget _buildSearchAndFilters() {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final page = _coursePage;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text(
+          'Find your next course',
+          style: textTheme.headlineSmall,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Explore courses and keep building your skills.',
+          style: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 18),
         TextField(
           controller: _searchController,
           textInputAction: TextInputAction.search,
@@ -138,54 +151,82 @@ class _CourseBrowseScreenState extends State<CourseBrowseScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        DropdownButtonFormField<String>(
-          value: _selectedLevel,
-          isExpanded: true,
-          decoration: const InputDecoration(
-            labelText: 'Level',
-            prefixIcon: Icon(Icons.signal_cellular_alt),
-          ),
-          items: const [
-            DropdownMenuItem(
-              value: 'BEGINNER',
-              child: Text('Beginner'),
-            ),
-            DropdownMenuItem(
-              value: 'INTERMEDIATE',
-              child: Text('Intermediate'),
-            ),
-            DropdownMenuItem(
-              value: 'ADVANCED',
-              child: Text('Advanced'),
-            ),
-          ],
-          onChanged: (value) {
-            setState(() {
-              _selectedLevel = value;
-            });
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final clearButton = OutlinedButton.icon(
+              onPressed:
+                  _searchController.text.isEmpty && _selectedLevel == null
+                      ? null
+                      : _clearFilters,
+              icon: const Icon(Icons.clear),
+              label: const Text('Clear filters'),
+            );
+            final levelFilter = DropdownButtonFormField<String>(
+              value: _selectedLevel,
+              isExpanded: true,
+              decoration: const InputDecoration(
+                labelText: 'Level',
+                prefixIcon: Icon(Icons.signal_cellular_alt),
+              ),
+              items: const [
+                DropdownMenuItem(value: 'BEGINNER', child: Text('Beginner')),
+                DropdownMenuItem(
+                  value: 'INTERMEDIATE',
+                  child: Text('Intermediate'),
+                ),
+                DropdownMenuItem(value: 'ADVANCED', child: Text('Advanced')),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _selectedLevel = value;
+                });
+                _loadCourses(page: 1);
+              },
+            );
 
-            _loadCourses(page: 1);
+            if (constraints.maxWidth >= 500) {
+              return Row(
+                children: [
+                  Expanded(child: levelFilter),
+                  const SizedBox(width: 12),
+                  clearButton,
+                ],
+              );
+            }
+
+            return Column(
+              children: [
+                levelFilter,
+                const SizedBox(height: 10),
+                SizedBox(width: double.infinity, child: clearButton),
+              ],
+            );
           },
         ),
-        const SizedBox(height: 10),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: _searchController.text.isEmpty && _selectedLevel == null
-                ? null
-                : _clearFilters,
-            icon: const Icon(Icons.clear),
-            label: const Text('Clear Filters'),
-          ),
-        ),
         const SizedBox(height: 18),
-        Text(
-          page == null
-              ? 'Published Courses'
-              : '${page.pagination.totalItems} published course(s)',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.menu_book_outlined,
+                  size: 19, color: colorScheme.primary),
+              const SizedBox(width: 9),
+              Expanded(
+                child: Text(
+                  page == null
+                      ? 'Published courses'
+                      : '${page.pagination.totalItems} published course(s)',
+                  style: textTheme.titleSmall?.copyWith(
+                    color: colorScheme.onSurface,
+                  ),
+                ),
               ),
+            ],
+          ),
         ),
       ],
     );
@@ -201,37 +242,18 @@ class _CourseBrowseScreenState extends State<CourseBrowseScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (course.thumbnailUrl != null)
-              SizedBox(
-                height: 170,
-                width: double.infinity,
-                child: Image.network(
-                  course.thumbnailUrl!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) {
-                    return Container(
-                      color: colorScheme.surfaceContainerHighest,
-                      child: const Center(
-                        child: Icon(
-                          Icons.image_not_supported_outlined,
-                          size: 42,
-                        ),
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: course.thumbnailUrl != null
+                  ? Image.network(
+                      course.thumbnailUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _buildCoursePlaceholder(
+                        unavailable: true,
                       ),
-                    );
-                  },
-                ),
-              )
-            else
-              Container(
-                height: 170,
-                width: double.infinity,
-                color: colorScheme.primaryContainer,
-                child: Icon(
-                  Icons.menu_book_outlined,
-                  size: 52,
-                  color: colorScheme.onPrimaryContainer,
-                ),
-              ),
+                    )
+                  : _buildCoursePlaceholder(),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
               child: Text(
@@ -249,7 +271,10 @@ class _CourseBrowseScreenState extends State<CourseBrowseScreen> {
                 course.shortDescription,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      height: 1.4,
+                    ),
               ),
             ),
             Padding(
@@ -276,27 +301,89 @@ class _CourseBrowseScreenState extends State<CourseBrowseScreen> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               child: Wrap(
                 spacing: 8,
-                runSpacing: 6,
+                runSpacing: 8,
                 children: [
                   if (course.category.name.isNotEmpty)
-                    Chip(
-                      visualDensity: VisualDensity.compact,
-                      label: Text(course.category.name),
+                    _buildCourseTag(
+                      Icons.category_outlined,
+                      course.category.name,
                     ),
-                  Chip(
-                    visualDensity: VisualDensity.compact,
-                    label: Text(course.level),
+                  _buildCourseTag(
+                    Icons.signal_cellular_alt_outlined,
+                    course.level,
                   ),
-                  TextButton.icon(
-                    onPressed: () => _openCourse(course),
-                    icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                    label: const Text('View course'),
+                  _buildCourseTag(
+                    Icons.star_rounded,
+                    course.averageRating.toStringAsFixed(1),
+                  ),
+                  _buildCourseTag(
+                    Icons.payments_outlined,
+                    course.isFree ? 'Free' : 'Price: ${course.price}',
                   ),
                 ],
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  onPressed: () => _openCourse(course),
+                  icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                  label: const Text('View course'),
+                ),
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCoursePlaceholder({bool unavailable = false}) {
+    final colors = Theme.of(context).colorScheme;
+    return ColoredBox(
+      color: unavailable
+          ? colors.surfaceContainerHighest
+          : colors.primaryContainer,
+      child: Center(
+        child: Icon(
+          unavailable
+              ? Icons.image_not_supported_outlined
+              : Icons.menu_book_outlined,
+          size: 44,
+          color: unavailable
+              ? colors.onSurfaceVariant
+              : colors.onPrimaryContainer,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCourseTag(IconData icon, String label) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 210),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: colors.outlineVariant),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: colors.primary),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -310,8 +397,11 @@ class _CourseBrowseScreenState extends State<CourseBrowseScreen> {
 
     return Padding(
       padding: const EdgeInsets.only(top: 18),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8,
+        runSpacing: 8,
         children: [
           OutlinedButton.icon(
             onPressed: pagination.hasPreviousPage && !_isLoading
@@ -322,12 +412,10 @@ class _CourseBrowseScreenState extends State<CourseBrowseScreen> {
             icon: const Icon(Icons.chevron_left),
             label: const Text('Previous'),
           ),
-          const SizedBox(width: 12),
           Text(
             'Page $_currentPage of ${pagination.totalPages}',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          const SizedBox(width: 12),
           OutlinedButton.icon(
             onPressed: pagination.hasNextPage && !_isLoading
                 ? () => _loadCourses(
@@ -344,8 +432,20 @@ class _CourseBrowseScreenState extends State<CourseBrowseScreen> {
 
   Widget _buildContent() {
     if (_isLoading && _coursePage == null) {
-      return const Center(
-        child: CircularProgressIndicator(),
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 14),
+            Text(
+              'Loading courses',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
       );
     }
 
@@ -377,7 +477,28 @@ class _CourseBrowseScreenState extends State<CourseBrowseScreen> {
               onActionPressed: _clearFilters,
             )
           else ...[
-            ...courses.map(_buildCourseCard),
+            if (courses.isNotEmpty)
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final twoColumns = constraints.maxWidth >= 700;
+                  final cardWidth = twoColumns
+                      ? ((constraints.maxWidth - 16) / 2).clamp(0, 520).toDouble()
+                      : constraints.maxWidth;
+                  return Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 16,
+                    runSpacing: 16,
+                    children: courses
+                        .map(
+                          (course) => SizedBox(
+                            width: cardWidth,
+                            child: _buildCourseCard(course),
+                          ),
+                        )
+                        .toList(),
+                  );
+                },
+              ),
             _buildPagination(),
           ],
           if (_isLoading)

@@ -253,95 +253,142 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
 
   Widget _buildCourseHeader(Course course) {
     final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (course.thumbnailUrl != null)
           ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Image.network(
-              course.thumbnailUrl!,
-              width: double.infinity,
-              height: 210,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) {
-                return _buildPlaceholderHeader();
-              },
+            borderRadius: BorderRadius.circular(20),
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Image.network(
+                course.thumbnailUrl!,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => _buildPlaceholderHeader(),
+              ),
             ),
           )
         else
           _buildPlaceholderHeader(),
-        const SizedBox(height: 18),
+        const SizedBox(height: 20),
         Text(
           course.title,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: textTheme.headlineSmall?.copyWith(height: 1.2),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         Text(
           course.shortDescription,
-          style: Theme.of(context).textTheme.bodyLarge,
+          style: textTheme.bodyLarge?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+            height: 1.5,
+          ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 16),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
             if (course.category.name.isNotEmpty)
-              Chip(
-                label: Text(course.category.name),
-                avatar: const Icon(Icons.category_outlined, size: 18),
+              _buildInfoPill(
+                Icons.category_outlined,
+                course.category.name,
               ),
-            Chip(
-              label: Text(course.level),
-              avatar: const Icon(
-                Icons.signal_cellular_alt,
-                size: 18,
-              ),
+            _buildInfoPill(
+              Icons.signal_cellular_alt_outlined,
+              course.level,
             ),
-            Chip(
-              label: Text(course.language),
-              avatar: const Icon(
-                Icons.language,
-                size: 18,
-              ),
+            _buildInfoPill(
+              Icons.language_outlined,
+              course.language,
             ),
-            Chip(
-              label: Text(
-                course.isFree ? 'Free' : 'Price: ${course.price}',
-              ),
-              avatar: const Icon(
-                Icons.payments_outlined,
-                size: 18,
-              ),
+            _buildInfoPill(
+              Icons.payments_outlined,
+              course.isFree ? 'Free' : 'Price: ${course.price}',
             ),
           ],
         ),
         const SizedBox(height: 16),
-        Wrap(
-          spacing: 8,
-          runSpacing: 6,
-          children: [
-            const Icon(Icons.star_rounded),
-            Text(
-              course.averageRating.toStringAsFixed(1),
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: colorScheme.outlineVariant),
+          ),
+          child: Wrap(
+            spacing: 22,
+            runSpacing: 12,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.star_rounded, color: colorScheme.tertiary),
+                  const SizedBox(width: 6),
+                  Text(
+                    course.averageRating.toStringAsFixed(1),
+                    style: textTheme.titleMedium,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '(${course.reviewCount} reviews)',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            Text(
-              '(${course.reviewCount} reviews)',
-            ),
-            Icon(
-              Icons.people_outline,
-              color: colorScheme.onSurfaceVariant,
-            ),
-            Text('${course.totalEnrollments} enrolled'),
-          ],
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.people_outline,
+                    color: colorScheme.onSurfaceVariant,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${course.totalEnrollments} enrolled',
+                    style: textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildInfoPill(IconData icon, String label) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 260),
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colors.outlineVariant),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 17, color: colors.primary),
+          const SizedBox(width: 7),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelMedium,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -349,16 +396,20 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      height: 210,
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Icon(
-        Icons.menu_book_outlined,
-        size: 64,
-        color: colorScheme.onPrimaryContainer,
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Icon(
+            Icons.menu_book_outlined,
+            size: 64,
+            color: colorScheme.onPrimaryContainer,
+          ),
+        ),
       ),
     );
   }
@@ -518,27 +569,69 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
           ..._sections.map(
             (section) => Card(
               margin: const EdgeInsets.only(bottom: 10),
-              child: ListTile(
-                leading: CircleAvatar(
-                  child: Text(
-                    section.order.toString(),
-                  ),
-                ),
-                title: Text(section.title),
-                subtitle: Column(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (section.description.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        section.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                    CircleAvatar(
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primaryContainer,
+                      foregroundColor:
+                          Theme.of(context).colorScheme.onPrimaryContainer,
+                      child: Text(section.order.toString()),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            section.title,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          if (section.description.isNotEmpty) ...[
+                            const SizedBox(height: 5),
+                            Text(
+                              section.description,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                            ),
+                          ],
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.play_lesson_outlined,
+                                size: 17,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '${section.lessonCount} lesson(s)',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
+                                    ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                    const SizedBox(height: 6),
-                    Text(
-                      '${section.lessonCount} lesson(s)',
                     ),
                   ],
                 ),
@@ -569,6 +662,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
         const SizedBox(height: 8),
         Text(
           course.description,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.6),
         ),
         const SizedBox(height: 24),
         _buildInstructor(course),
@@ -605,8 +699,22 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
       ),
       body: SafeArea(
         child: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(),
+            ? Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 14),
+                    Text(
+                      'Loading course details',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
               )
             : _errorMessage != null
                 ? Center(
@@ -632,10 +740,31 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                           _buildCourseContent(_course!),
                           if (widget.showEnrollButton)
                             Positioned(
-                              left: 16,
-                              right: 16,
-                              bottom: 16,
-                              child: _buildEnrollmentButton(),
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              child: Container(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  12,
+                                  16,
+                                  12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.surface,
+                                  border: Border(
+                                    top: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .outlineVariant,
+                                    ),
+                                  ),
+                                ),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  child: _buildEnrollmentButton(),
+                                ),
+                              ),
                             ),
                         ],
                       ),

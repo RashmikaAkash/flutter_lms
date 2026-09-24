@@ -176,63 +176,129 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildNotification(AppNotification notification) {
     final isBusy = _busyNotificationIds.contains(notification.id);
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: notification.isRead
-              ? Theme.of(context).colorScheme.surfaceContainerHighest
-              : Theme.of(context).colorScheme.primaryContainer,
-          child: Icon(
-            notification.isRead
-                ? Icons.notifications_none
-                : Icons.notifications_active_outlined,
-          ),
-        ),
-        title: Text(
-          notification.title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontWeight:
-                notification.isRead ? FontWeight.normal : FontWeight.w600,
-          ),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 6),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(notification.message),
-              const SizedBox(height: 6),
-              Chip(
-                visualDensity: VisualDensity.compact,
-                avatar: Icon(
-                  notification.isRead
-                      ? Icons.done_rounded
-                      : Icons.mark_email_unread_outlined,
-                  size: 16,
-                ),
-                label: Text(notification.isRead ? 'Read' : 'Unread'),
-                backgroundColor: notification.isRead
-                    ? Theme.of(context).colorScheme.surfaceContainerHighest
-                    : Theme.of(context).colorScheme.primaryContainer,
+      margin: const EdgeInsets.only(bottom: 12),
+      color: notification.isRead
+          ? null
+          : colors.primaryContainer.withOpacity(0.18),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: notification.isRead
+                    ? colors.surfaceContainerHighest
+                    : colors.primaryContainer,
+                borderRadius: BorderRadius.circular(13),
               ),
-              if (notification.createdAt != null) ...[
-                const SizedBox(height: 6),
-                Text(
-                  _formatDate(notification.createdAt),
-                  style: Theme.of(context).textTheme.bodySmall,
+              child: Icon(
+                notification.isRead
+                    ? Icons.notifications_none_rounded
+                    : Icons.notifications_active_outlined,
+                color: notification.isRead
+                    ? colors.onSurfaceVariant
+                    : colors.onPrimaryContainer,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 480),
+                        child: Text(
+                          notification.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.titleSmall?.copyWith(
+                            fontWeight: notification.isRead
+                                ? FontWeight.w500
+                                : FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: notification.isRead
+                              ? colors.surfaceContainerHighest
+                              : colors.primaryContainer,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          notification.isRead ? 'Read' : 'Unread',
+                          style: textTheme.labelSmall?.copyWith(
+                            color: notification.isRead
+                                ? colors.onSurfaceVariant
+                                : colors.onPrimaryContainer,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    notification.message,
+                    maxLines: 5,
+                    overflow: TextOverflow.ellipsis,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colors.onSurfaceVariant,
+                      height: 1.45,
+                    ),
+                  ),
+                  if (notification.createdAt != null) ...[
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.schedule_rounded,
+                          size: 15,
+                          color: colors.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 5),
+                        Flexible(
+                          child: Text(
+                            _formatDate(notification.createdAt),
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 4),
+            if (isBusy)
+              const Padding(
+                padding: EdgeInsets.all(10),
+                child: SizedBox.square(
+                  dimension: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
                 ),
-              ],
-            ],
-          ),
-        ),
-        trailing: isBusy
-            ? const SizedBox.square(
-                dimension: 22,
-                child: CircularProgressIndicator(strokeWidth: 2),
               )
-            : PopupMenuButton<String>(
+            else
+              PopupMenuButton<String>(
+                tooltip: 'Notification actions',
                 onSelected: (action) {
                   if (action == 'read') _markRead(notification);
                   if (action == 'delete') _deleteNotification(notification);
@@ -249,13 +315,29 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                 ],
               ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildContent() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 14),
+            Text(
+              'Loading notifications',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
+      );
     }
     if (_errorMessage != null) {
       return Center(
@@ -278,12 +360,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           if (_notifications.isEmpty)
-            const Padding(
-              padding: EdgeInsets.only(top: 70),
+            Padding(
+              padding: const EdgeInsets.only(top: 48),
               child: MessageWidget(
-                title: 'You’re all caught up',
+                title: 'All caught up',
                 message: 'New course and learning updates will appear here.',
                 type: MessageType.info,
+                actionLabel: 'Refresh',
+                onActionPressed: _loadNotifications,
               ),
             )
           else
@@ -317,10 +401,41 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       appBar: AppBar(
         title: const Text('Notifications'),
         actions: [
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: Chip(label: Text('Unread: $_unreadCount')),
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: SizedBox(
+              width: 44,
+              height: 36,
+              child: Semantics(
+                label: '$_unreadCount unread notifications',
+                child: ExcludeSemantics(
+                  child: Container(
+                    constraints:
+                        const BoxConstraints(minWidth: 28, minHeight: 28),
+                    padding: const EdgeInsets.symmetric(horizontal: 7),
+                    decoration: BoxDecoration(
+                      color: _unreadCount == 0
+                          ? Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest
+                          : Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      _unreadCount > 99 ? '99+' : '$_unreadCount',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: _unreadCount == 0
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ),
           IconButton(

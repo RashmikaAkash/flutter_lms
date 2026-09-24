@@ -74,9 +74,13 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
   }
 
   Widget _buildQuizCard(Quiz quiz) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
+      margin: const EdgeInsets.only(bottom: 14),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
         onTap: () {
           Navigator.pushNamed(
             context,
@@ -84,43 +88,96 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
             arguments: quiz.id,
           );
         },
-        contentPadding: const EdgeInsets.all(16),
-        leading: const CircleAvatar(
-          child: Icon(
-            Icons.quiz_outlined,
-          ),
-        ),
-        title: Text(
-          quiz.title.isEmpty ? 'Quiz' : quiz.title,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 8),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (quiz.description.isNotEmpty)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: colors.primaryContainer,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      Icons.quiz_outlined,
+                      color: colors.onPrimaryContainer,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          quiz.title.isEmpty ? 'Quiz' : quiz.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.titleMedium,
+                        ),
+                        if (quiz.section.title.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            quiz.section.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: textTheme.bodySmall?.copyWith(
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: colors.onSurfaceVariant,
+                  ),
+                ],
+              ),
+              if (quiz.description.isNotEmpty) ...[
+                const SizedBox(height: 14),
                 Text(
                   quiz.description,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
+                  style: textTheme.bodyMedium?.copyWith(
+                    color: colors.onSurfaceVariant,
+                    height: 1.45,
+                  ),
                 ),
-              const SizedBox(height: 8),
-              Text(
-                'Passing score: '
-                '${quiz.passingScore.toStringAsFixed(0)}%',
+              ],
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _buildQuizInfo(
+                    quiz.isPublished ? 'Published' : 'Unpublished',
+                    icon: quiz.isPublished
+                        ? Icons.check_circle_outline_rounded
+                        : Icons.visibility_off_outlined,
+                    isEmphasized: quiz.isPublished,
+                  ),
+                  _buildQuizInfo(
+                    'Pass ${quiz.passingScore.toStringAsFixed(0)}%',
+                    icon: Icons.flag_outlined,
+                  ),
+                  _buildQuizInfo(
+                    '${quiz.timeLimitMinutes} min',
+                    icon: Icons.timer_outlined,
+                  ),
+                  _buildQuizInfo(
+                    '${quiz.maxAttempts} attempts',
+                    icon: Icons.repeat_rounded,
+                  ),
+                ],
               ),
-              Text(
-                'Time limit: ${quiz.timeLimitMinutes} minute(s)',
-              ),
-              Text(
-                'Maximum attempts: ${quiz.maxAttempts}',
-              ),
-              if (quiz.section.title.isNotEmpty)
-                Text(
-                  'Section: ${quiz.section.title}',
-                ),
             ],
           ),
         ),
@@ -128,10 +185,55 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
     );
   }
 
+  Widget _buildQuizInfo(
+    String label, {
+    required IconData icon,
+    bool isEmphasized = false,
+  }) {
+    final colors = Theme.of(context).colorScheme;
+    final background =
+        isEmphasized ? colors.secondaryContainer : colors.surfaceContainerLow;
+    final foreground =
+        isEmphasized ? colors.onSecondaryContainer : colors.onSurfaceVariant;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: foreground),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: foreground,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildContent() {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 14),
+            Text(
+              'Loading quizzes',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ],
+        ),
       );
     }
 
@@ -166,15 +268,54 @@ class _StudentQuizListScreenState extends State<StudentQuizListScreen> {
     return RefreshIndicator(
       onRefresh: _loadQuizzes,
       child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
         children: [
-          Text(
-            '${_quizzes.length} quiz(es)',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 4, 4, 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Course quizzes',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Review the requirements before you begin.',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '${_quizzes.length}',
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
+                        ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 14),
           ..._quizzes.map(_buildQuizCard),
         ],
       ),
