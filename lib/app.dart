@@ -220,10 +220,11 @@ class FlutterLmsApp extends StatelessWidget {
           elevation: 0,
           backgroundColor: colorScheme.surface,
           foregroundColor: colorScheme.onSurface,
-          titleTextStyle: const TextStyle(
+          titleTextStyle: TextStyle(
             fontFamily: 'Poppins',
             fontSize: 20,
             fontWeight: FontWeight.w600,
+            color: colorScheme.onSurface,
           ),
         ),
 

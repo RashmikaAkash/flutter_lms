@@ -570,13 +570,36 @@ class _StudentQuizDetailScreenState extends State<StudentQuizDetailScreen> {
         '${seconds.toString().padLeft(2, '0')}';
   }
 
+  Future<void> _confirmSubmitAttempt() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Submit quiz?'),
+        content: const Text(
+          'Once submitted, your answers cannot be changed. Submit this attempt now?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Continue quiz'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Submit quiz'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true && mounted) await _submitAttempt();
+  }
+
   Widget _buildSubmitButton() {
     if (_quizAttempt == null || !_quizAttempt!.isInProgress) {
       return const SizedBox.shrink();
     }
 
     return FilledButton.icon(
-      onPressed: _isSubmitting ? null : _submitAttempt,
+      onPressed: _isSubmitting ? null : _confirmSubmitAttempt,
       icon: _isSubmitting
           ? const SizedBox(
               width: 18,

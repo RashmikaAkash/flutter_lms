@@ -190,6 +190,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
         title: Text(
           notification.title,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontWeight:
                 notification.isRead ? FontWeight.normal : FontWeight.w600,
@@ -201,6 +203,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(notification.message),
+              const SizedBox(height: 6),
+              Chip(
+                visualDensity: VisualDensity.compact,
+                avatar: Icon(
+                  notification.isRead
+                      ? Icons.done_rounded
+                      : Icons.mark_email_unread_outlined,
+                  size: 16,
+                ),
+                label: Text(notification.isRead ? 'Read' : 'Unread'),
+                backgroundColor: notification.isRead
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                    : Theme.of(context).colorScheme.primaryContainer,
+              ),
               if (notification.createdAt != null) ...[
                 const SizedBox(height: 6),
                 Text(

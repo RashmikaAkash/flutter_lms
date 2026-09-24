@@ -337,6 +337,16 @@ class _StudentAssignmentDetailScreenState
     );
   }
 
+  String _formatSubmittedAt(DateTime? date) {
+    if (date == null) return 'Not available';
+    final localDate = date.toLocal();
+    return '${localDate.day.toString().padLeft(2, '0')}/'
+        '${localDate.month.toString().padLeft(2, '0')}/'
+        '${localDate.year}  '
+        '${localDate.hour.toString().padLeft(2, '0')}:'
+        '${localDate.minute.toString().padLeft(2, '0')}';
+  }
+
   Widget _buildTextSection({
     required String title,
     required String content,
@@ -400,12 +410,34 @@ class _StudentAssignmentDetailScreenState
                                   ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          'Status: '
-                          '${submission.status.isEmpty ? 'SUBMITTED' : submission.status}',
+                        const SizedBox(height: 8),
+                        Chip(
+                          visualDensity: VisualDensity.compact,
+                          avatar: Icon(
+                            submission.status == 'GRADED'
+                                ? Icons.verified_outlined
+                                : submission.status == 'RESUBMISSION_REQUIRED'
+                                    ? Icons.replay_outlined
+                                    : Icons.schedule_outlined,
+                            size: 18,
+                          ),
+                          label: Text(
+                            submission.status.isEmpty
+                                ? 'SUBMITTED'
+                                : submission.status.replaceAll('_', ' '),
+                          ),
+                          backgroundColor: submission.status == 'GRADED'
+                              ? Theme.of(context).colorScheme.secondaryContainer
+                              : submission.status == 'RESUBMISSION_REQUIRED'
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .tertiaryContainer
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest,
                         ),
                         Text(
-                          'Submitted: ${submission.submittedAt}',
+                          'Submitted: ${_formatSubmittedAt(submission.submittedAt)}',
                         ),
                       ],
                     ),
@@ -473,7 +505,9 @@ class _StudentAssignmentDetailScreenState
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton.icon(
-                  onPressed: _isReplacingFile ? null : _replaceSubmissionFile,
+                  onPressed: _isReplacingFile || submission.status == 'GRADED'
+                      ? null
+                      : _replaceSubmissionFile,
                   icon: _isReplacingFile
                       ? const SizedBox(
                           width: 18,
@@ -486,7 +520,11 @@ class _StudentAssignmentDetailScreenState
                           Icons.sync_outlined,
                         ),
                   label: Text(
-                    _isReplacingFile ? 'Replacing...' : 'Replace File',
+                    _isReplacingFile
+                        ? 'Replacing...'
+                        : submission.status == 'GRADED'
+                            ? 'Submission Graded'
+                            : 'Replace File',
                   ),
                 ),
               ),

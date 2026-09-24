@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../core/auth/auth_service.dart';
 import '../core/errors/api_exception.dart';
-import '../widgets/dashboard_card.dart';
 import '../widgets/dashboard_nav_card.dart';
+import '../widgets/message_widget.dart';
 import '../widgets/section_header.dart';
+import 'notifications_screen.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -110,15 +111,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Dashboard'),
+        title: const Text('Dashboard'),
         actions: [
+          const NotificationsAction(),
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.notifications_outlined),
-            tooltip: 'Notifications',
-          ),
-          IconButton(
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, '/profile'),
             icon: const Icon(Icons.account_circle_outlined),
             tooltip: 'Profile',
           ),
@@ -155,75 +152,46 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 20),
-              GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                childAspectRatio: 1.45,
-                children: [
-                  DashboardCard(
-                    title: 'Users',
-                    value: '450',
-                    icon: Icons.people_outline,
-                    onTap: () {},
-                  ),
-                  DashboardCard(
-                    title: 'Courses',
-                    value: '32',
-                    icon: Icons.menu_book_outlined,
-                    onTap: () {},
-                  ),
-                  DashboardCard(
-                    title: 'Enrollments',
-                    value: '780',
-                    icon: Icons.how_to_reg_outlined,
-                    onTap: () {},
-                  ),
-                  DashboardCard(
-                    title: 'Reviews',
-                    value: '96',
-                    icon: Icons.reviews_outlined,
-                    onTap: () {},
-                  ),
-                ],
+              const MessageWidget(
+                title: 'Admin tools unavailable',
+                message: 'Platform management and live statistics are not '
+                    'available yet.',
+                type: MessageType.info,
               ),
               const SizedBox(height: 24),
               const SectionHeader(
                 title: 'Platform Management',
-                actionLabel: 'View All',
               ),
               const SizedBox(height: 10),
-              DashboardNavCard(
+              const DashboardNavCard(
                 title: 'Users',
-                subtitle: 'Manage students and instructors',
+                subtitle: 'User management is not available yet',
                 icon: Icons.people_outline,
-                onTap: () {},
+                unavailableLabel: 'Coming soon',
               ),
-              DashboardNavCard(
+              const DashboardNavCard(
                 title: 'Categories',
-                subtitle: 'Manage course categories',
+                subtitle: 'Category management is not available yet',
                 icon: Icons.category_outlined,
-                onTap: () {},
+                unavailableLabel: 'Coming soon',
               ),
-              DashboardNavCard(
+              const DashboardNavCard(
                 title: 'Courses',
-                subtitle: 'Inspect and manage platform courses',
+                subtitle: 'Course management is not available yet',
                 icon: Icons.library_books_outlined,
-                onTap: () {},
+                unavailableLabel: 'Coming soon',
               ),
-              DashboardNavCard(
+              const DashboardNavCard(
                 title: 'Enrollments',
-                subtitle: 'Inspect platform enrollments',
+                subtitle: 'Enrollment management is not available yet',
                 icon: Icons.how_to_reg_outlined,
-                onTap: () {},
+                unavailableLabel: 'Coming soon',
               ),
-              DashboardNavCard(
+              const DashboardNavCard(
                 title: 'Reviews',
-                subtitle: 'Moderate learner reviews',
+                subtitle: 'Review moderation is not available yet',
                 icon: Icons.rate_review_outlined,
-                onTap: () {},
+                unavailableLabel: 'Coming soon',
               ),
             ],
           ),

@@ -227,21 +227,30 @@ class _CourseReviewsScreenState extends State<CourseReviewsScreen> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 12),
-            DropdownButtonFormField<int>(
-              value: _rating,
-              decoration: const InputDecoration(labelText: 'Rating'),
-              items: List.generate(
-                5,
-                (index) => DropdownMenuItem(
-                  value: index + 1,
-                  child: Text('${index + 1} / 5 stars'),
-                ),
-              ),
-              onChanged: _isSaving
-                  ? null
-                  : (value) {
-                      if (value != null) setState(() => _rating = value);
-                    },
+            Text('Your rating', style: Theme.of(context).textTheme.labelLarge),
+            const SizedBox(height: 4),
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 2,
+              children: [
+                for (var star = 1; star <= 5; star++)
+                  IconButton(
+                    tooltip: '$star of 5 stars',
+                    onPressed:
+                        _isSaving ? null : () => setState(() => _rating = star),
+                    visualDensity: VisualDensity.compact,
+                    icon: Icon(
+                      star <= _rating
+                          ? Icons.star_rounded
+                          : Icons.star_outline_rounded,
+                      color: star <= _rating
+                          ? Colors.amber.shade700
+                          : Theme.of(context).colorScheme.outline,
+                      size: 32,
+                    ),
+                  ),
+                Text('$_rating / 5'),
+              ],
             ),
             const SizedBox(height: 12),
             TextField(
@@ -301,7 +310,8 @@ class _CourseReviewsScreenState extends State<CourseReviewsScreen> {
                   ),
                 ),
                 const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
-                Text('${review.rating}/5'),
+                const SizedBox(width: 3),
+                Text('${review.rating} / 5'),
               ],
             ),
             if (review.comment?.isNotEmpty == true) ...[

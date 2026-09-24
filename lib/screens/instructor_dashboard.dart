@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../core/auth/auth_service.dart';
 import '../core/errors/api_exception.dart';
-import '../widgets/dashboard_card.dart';
 import '../widgets/dashboard_nav_card.dart';
+import '../widgets/message_widget.dart';
 import '../widgets/section_header.dart';
 import 'notifications_screen.dart';
 
@@ -111,7 +111,7 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Instructor Dashboard'),
+        title: const Text('Dashboard'),
         actions: [
           const NotificationsAction(),
           IconButton(
@@ -154,81 +154,61 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 20),
-              GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                childAspectRatio: 1.45,
-                children: [
-                  DashboardCard(
-                    title: 'Courses',
-                    value: '6',
-                    icon: Icons.menu_book_outlined,
-                    onTap: () {},
-                  ),
-                  DashboardCard(
-                    title: 'Students',
-                    value: '124',
-                    icon: Icons.people_outline,
-                    onTap: () {},
-                  ),
-                  DashboardCard(
-                    title: 'Assignments',
-                    value: '15',
-                    icon: Icons.assignment_outlined,
-                    onTap: () {},
-                  ),
-                  DashboardCard(
-                    title: 'Pending Reviews',
-                    value: '7',
-                    icon: Icons.rate_review_outlined,
-                    onTap: () {},
-                  ),
-                ],
+              const MessageWidget(
+                title: 'Dashboard statistics unavailable',
+                message:
+                    'Live course and learner counts are not connected yet. '
+                    'Your course tools are available below.',
+                type: MessageType.info,
               ),
               const SizedBox(height: 24),
               const SectionHeader(
                 title: 'Course Management',
-                actionLabel: 'View All',
               ),
               const SizedBox(height: 10),
               DashboardNavCard(
-                title: 'Create Course',
-                subtitle: 'Build a new learning course',
-                icon: Icons.add_circle_outline,
-                onTap: () {},
+                title: 'My Courses',
+                subtitle: 'Choose a course to manage its content',
+                icon: Icons.menu_book_outlined,
+                onTap: () =>
+                    Navigator.pushNamed(context, '/instructor-courses'),
               ),
-              DashboardNavCard(
-                title: 'Course Builder',
-                subtitle: 'Manage sections and lessons',
+              const DashboardNavCard(
+                title: 'Create Course',
+                subtitle: 'Course creation is not available yet',
                 icon: Icons.build_outlined,
-                onTap: () {},
+                unavailableLabel: 'Coming soon',
+              ),
+              const DashboardNavCard(
+                title: 'Course Builder',
+                subtitle: 'Course building is not available yet',
+                icon: Icons.tune_outlined,
+                unavailableLabel: 'Coming soon',
               ),
               DashboardNavCard(
                 title: 'Quizzes',
-                subtitle: 'Create and manage quizzes',
+                subtitle: 'Choose a course to manage its quizzes',
                 icon: Icons.quiz_outlined,
-                onTap: () {},
+                onTap: () =>
+                    Navigator.pushNamed(context, '/instructor-courses'),
               ),
               DashboardNavCard(
                 title: 'Assignments',
-                subtitle: 'Manage learner assignments',
+                subtitle: 'Choose a course to manage its assignments',
                 icon: Icons.assignment_outlined,
-                onTap: () {},
+                onTap: () =>
+                    Navigator.pushNamed(context, '/instructor-courses'),
               ),
               const SizedBox(height: 24),
               const SectionHeader(
                 title: 'Learner Management',
-                actionLabel: 'View All',
               ),
               const SizedBox(height: 10),
-              DashboardNavCard(
+              const DashboardNavCard(
                 title: 'Enrollments',
-                subtitle: 'Inspect enrolled learners',
+                subtitle: 'Enrollment management is not available yet',
                 icon: Icons.group_outlined,
-                onTap: () {},
+                unavailableLabel: 'Coming soon',
               ),
               DashboardNavCard(
                 title: 'Submissions',

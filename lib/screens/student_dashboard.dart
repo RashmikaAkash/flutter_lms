@@ -339,54 +339,46 @@ class _StudentDashboardState extends State<StudentDashboard> {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 20),
-            GridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              childAspectRatio: 1.45,
-              children: [
-                DashboardCard(
-                  title: 'Enrolled Courses',
-                  value: _enrollments.length.toString(),
-                  icon: Icons.menu_book_outlined,
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      '/my-courses',
-                    );
-                  },
-                ),
-                DashboardCard(
-                  title: 'Completed',
-                  value: _completedCount.toString(),
-                  icon: Icons.check_circle_outline,
-                  onTap: () => _openAndRefresh('/completed-courses'),
-                ),
-                const DashboardCard(
-                  title: 'Quizzes',
-                  value: '—',
-                  icon: Icons.quiz_outlined,
-                ),
-                const DashboardCard(
-                  title: 'Assignments',
-                  value: '—',
-                  icon: Icons.assignment_outlined,
-                ),
-              ],
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  childAspectRatio: constraints.maxWidth < 310 ? 0.9 : 1.2,
+                  children: [
+                    DashboardCard(
+                      title: 'Enrolled Courses',
+                      value: _enrollments.length.toString(),
+                      icon: Icons.menu_book_outlined,
+                      onTap: () {
+                        Navigator.pushNamed(
+                          context,
+                          '/my-courses',
+                        );
+                      },
+                    ),
+                    DashboardCard(
+                      title: 'Completed',
+                      value: _completedCount.toString(),
+                      icon: Icons.check_circle_outline,
+                      onTap: () => _openAndRefresh('/completed-courses'),
+                    ),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 24),
             const SectionHeader(
               title: 'Continue Learning',
-              actionLabel: 'View All',
             ),
             const SizedBox(height: 10),
             _buildContinueLearning(),
             const SizedBox(height: 24),
             const SectionHeader(
               title: 'Quick Access',
-              actionLabel: 'View All',
             ),
             const SizedBox(height: 10),
             DashboardNavCard(
@@ -405,16 +397,16 @@ class _StudentDashboardState extends State<StudentDashboard> {
             const SizedBox(height: 10),
             DashboardNavCard(
               title: 'Quizzes',
-              subtitle: 'View available quizzes',
+              subtitle: 'Choose a course to view its quizzes',
               icon: Icons.quiz_outlined,
-              onTap: () {},
+              onTap: () => _openAndRefresh('/my-courses'),
             ),
             const SizedBox(height: 10),
             DashboardNavCard(
               title: 'Assignments',
-              subtitle: 'View and submit assignments',
+              subtitle: 'Choose a course to view its assignments',
               icon: Icons.assignment_outlined,
-              onTap: () {},
+              onTap: () => _openAndRefresh('/my-courses'),
             ),
             const SizedBox(height: 10),
             DashboardNavCard(
@@ -433,7 +425,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Student Dashboard'),
+        title: const Text('Dashboard'),
         actions: [
           const NotificationsAction(),
           IconButton(

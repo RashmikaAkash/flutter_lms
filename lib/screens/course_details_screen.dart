@@ -289,6 +289,11 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
           spacing: 8,
           runSpacing: 8,
           children: [
+            if (course.category.name.isNotEmpty)
+              Chip(
+                label: Text(course.category.name),
+                avatar: const Icon(Icons.category_outlined, size: 18),
+              ),
             Chip(
               label: Text(course.level),
               avatar: const Icon(
@@ -315,26 +320,24 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
           ],
         ),
         const SizedBox(height: 16),
-        Row(
+        Wrap(
+          spacing: 8,
+          runSpacing: 6,
           children: [
             const Icon(Icons.star_rounded),
-            const SizedBox(width: 5),
             Text(
               course.averageRating.toStringAsFixed(1),
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(width: 4),
             Text(
               '(${course.reviewCount} reviews)',
             ),
-            const SizedBox(width: 16),
             Icon(
               Icons.people_outline,
               color: colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(width: 5),
             Text('${course.totalEnrollments} enrolled'),
           ],
         ),

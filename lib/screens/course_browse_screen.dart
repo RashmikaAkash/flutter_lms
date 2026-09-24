@@ -125,6 +125,7 @@ class _CourseBrowseScreenState extends State<CourseBrowseScreen> {
         TextField(
           controller: _searchController,
           textInputAction: TextInputAction.search,
+          onChanged: (_) => setState(() {}),
           onSubmitted: (_) => _applyFilters(),
           decoration: InputDecoration(
             hintText: 'Search courses',
@@ -268,20 +269,28 @@ class _CourseBrowseScreenState extends State<CourseBrowseScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 9,
-                      vertical: 5,
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: [
+                  if (course.category.name.isNotEmpty)
+                    Chip(
+                      visualDensity: VisualDensity.compact,
+                      label: Text(course.category.name),
                     ),
-                    decoration: BoxDecoration(
-                      color: colorScheme.secondaryContainer,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      course.level,
-                      style: Theme.of(context).textTheme.labelSmall,
-                    ),
+                  Chip(
+                    visualDensity: VisualDensity.compact,
+                    label: Text(course.level),
+                  ),
+                  TextButton.icon(
+                    onPressed: () => _openCourse(course),
+                    icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                    label: const Text('View course'),
                   ),
                 ],
               ),
@@ -340,39 +349,7 @@ class _CourseBrowseScreenState extends State<CourseBrowseScreen> {
       );
     }
 
-    if (_errorMessage != null && _coursePage == null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: MessageWidget(
-            title: 'Unable to load courses',
-            message: _errorMessage!,
-            type: MessageType.error,
-            actionLabel: 'Retry',
-            onActionPressed: () => _loadCourses(
-              page: _currentPage,
-            ),
-          ),
-        ),
-      );
-    }
-
     final courses = _coursePage?.courses ?? [];
-
-    if (courses.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: MessageWidget(
-            title: 'No courses found',
-            message: 'Try another search term or level.',
-            type: MessageType.info,
-            actionLabel: 'Clear Filters',
-            onActionPressed: _clearFilters,
-          ),
-        ),
-      );
-    }
 
     return RefreshIndicator(
       onRefresh: () => _loadCourses(
@@ -383,8 +360,26 @@ class _CourseBrowseScreenState extends State<CourseBrowseScreen> {
         children: [
           _buildSearchAndFilters(),
           const SizedBox(height: 16),
-          ...courses.map(_buildCourseCard),
-          _buildPagination(),
+          if (_errorMessage != null)
+            MessageWidget(
+              title: 'Unable to load courses',
+              message: _errorMessage!,
+              type: MessageType.error,
+              actionLabel: 'Retry',
+              onActionPressed: () => _loadCourses(page: _currentPage),
+            )
+          else if (courses.isEmpty)
+            MessageWidget(
+              title: 'No courses found',
+              message: 'Try another search term or level.',
+              type: MessageType.info,
+              actionLabel: 'Clear Filters',
+              onActionPressed: _clearFilters,
+            )
+          else ...[
+            ...courses.map(_buildCourseCard),
+            _buildPagination(),
+          ],
           if (_isLoading)
             const Padding(
               padding: EdgeInsets.only(top: 16),
