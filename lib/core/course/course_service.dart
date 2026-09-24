@@ -364,6 +364,227 @@ class CourseService {
     );
   }
 
+  Future<void> createInstructorAssignment({
+    required String courseId,
+    required String sectionId,
+    required String title,
+    required String description,
+    required String instructions,
+    required DateTime dueDate,
+    required int maximumMarks,
+  }) async {
+    await _apiClient.post(
+      '/api/v1/courses/$courseId/assignments',
+      data: {
+        'sectionId': sectionId,
+        'title': title.trim(),
+        'description': description.trim(),
+        'instructions': instructions.trim(),
+        'dueDate': dueDate.toUtc().toIso8601String(),
+        'maximumMarks': maximumMarks,
+      },
+      requiresAuth: true,
+    );
+  }
+
+  Future<void> publishInstructorAssignment(
+    String assignmentId,
+  ) async {
+    await _apiClient.patch(
+      '/api/v1/assignments/$assignmentId/publish',
+      requiresAuth: true,
+    );
+  }
+
+  Future<void> createInstructorQuiz({
+    required String courseId,
+    required String sectionId,
+    required String title,
+    required String description,
+    required double passingScore,
+    required int timeLimitMinutes,
+    required int maxAttempts,
+  }) async {
+    await _apiClient.post(
+      '/api/v1/courses/$courseId/quizzes',
+      data: {
+        'sectionId': sectionId,
+        'title': title.trim(),
+        'description': description.trim(),
+        'passingScore': passingScore,
+        'timeLimitMinutes': timeLimitMinutes,
+        'maxAttempts': maxAttempts,
+      },
+      requiresAuth: true,
+    );
+  }
+
+  Future<List<Quiz>> getInstructorQuizzes(
+    String courseId,
+  ) async {
+    final response = await _apiClient.get(
+      '/api/v1/courses/$courseId/quizzes/instructor',
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid instructor quizzes response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Instructor quizzes data is unavailable',
+      );
+    }
+
+    final rawQuizzes = data['quizzes'];
+
+    if (rawQuizzes is! List) {
+      return const [];
+    }
+
+    return rawQuizzes
+        .whereType<Map>()
+        .map(
+          (item) => Quiz.fromJson(
+            Map<String, dynamic>.from(item),
+          ),
+        )
+        .toList();
+  }
+
+  Future<QuizDetail> getInstructorQuiz(
+    String quizId,
+  ) async {
+    final response = await _apiClient.get(
+      '/api/v1/quizzes/$quizId/instructor',
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid instructor quiz response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Instructor quiz data is unavailable',
+      );
+    }
+
+    return QuizDetail.fromJson(
+      Map<String, dynamic>.from(data),
+    );
+  }
+
+  Future<void> createInstructorQuizQuestion({
+    required String quizId,
+    required String questionText,
+    required String questionType,
+    required List<Map<String, String>> options,
+    required List<String> correctOptionIds,
+    required int marks,
+  }) async {
+    await _apiClient.post(
+      '/api/v1/quizzes/$quizId/questions',
+      data: {
+        'questionText': questionText,
+        'questionType': questionType,
+        'options': options,
+        'correctOptionIds': correctOptionIds,
+        'marks': marks,
+      },
+      requiresAuth: true,
+    );
+  }
+
+  Future<void> updateInstructorQuizQuestion({
+    required String questionId,
+    required int marks,
+  }) async {
+    await _apiClient.patch(
+      '/api/v1/quiz-questions/$questionId',
+      data: {
+        'marks': marks,
+      },
+      requiresAuth: true,
+    );
+  }
+
+  Future<void> deleteInstructorQuizQuestion(
+    String questionId,
+  ) async {
+    await _apiClient.delete(
+      '/api/v1/quiz-questions/$questionId',
+      requiresAuth: true,
+    );
+  }
+
+  Future<void> publishInstructorQuiz(
+    String quizId,
+  ) async {
+    await _apiClient.patch(
+      '/api/v1/quizzes/$quizId/publish',
+      requiresAuth: true,
+    );
+  }
+
+  Future<Quiz> updateInstructorQuiz({
+    required String quizId,
+    required double passingScore,
+    required int timeLimitMinutes,
+    required int maxAttempts,
+  }) async {
+    final response = await _apiClient.patch(
+      '/api/v1/quizzes/$quizId',
+      data: {
+        'passingScore': passingScore,
+        'timeLimitMinutes': timeLimitMinutes,
+        'maxAttempts': maxAttempts,
+      },
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid quiz update response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Quiz update data is unavailable',
+      );
+    }
+
+    final quiz = data['quiz'];
+
+    if (quiz is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Updated quiz was not returned',
+      );
+    }
+
+    return Quiz.fromJson(
+      Map<String, dynamic>.from(quiz),
+    );
+  }
+
   Future<List<Assignment>> getInstructorAssignments(
     String courseId,
   ) async {
@@ -697,6 +918,41 @@ class CourseService {
     if (data is! Map<String, dynamic>) {
       throw const ApiException(
         message: 'Quiz attempts data is unavailable',
+      );
+    }
+
+    return QuizAttemptPage.fromJson(
+      Map<String, dynamic>.from(data),
+    );
+  }
+
+  Future<QuizAttemptPage> getInstructorAttempts({
+    required String quizId,
+    int page = 1,
+    int limit = 20,
+  }) async {
+    final response = await _apiClient.get(
+      '/api/v1/quizzes/$quizId/attempts/instructor',
+      queryParameters: {
+        'page': page,
+        'limit': limit,
+      },
+      requiresAuth: true,
+    );
+
+    final responseData = response.data;
+
+    if (responseData is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Invalid instructor quiz attempts response',
+      );
+    }
+
+    final data = responseData['data'];
+
+    if (data is! Map<String, dynamic>) {
+      throw const ApiException(
+        message: 'Instructor quiz attempts data is unavailable',
       );
     }
 

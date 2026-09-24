@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
 
-import '../core/course/course_page.dart';
 import '../core/course/course_service.dart';
 import '../core/errors/api_exception.dart';
-import '../core/models/course/course.dart';
+import '../core/models/quiz/quiz.dart';
 import '../widgets/message_widget.dart';
 
-class InstructorCourseListScreen extends StatefulWidget {
-  const InstructorCourseListScreen({
+class InstructorQuizListScreen extends StatefulWidget {
+  const InstructorQuizListScreen({
     super.key,
+    required this.courseId,
   });
 
+  final String courseId;
+
   @override
-  State<InstructorCourseListScreen> createState() =>
-      _InstructorCourseListScreenState();
+  State<InstructorQuizListScreen> createState() =>
+      _InstructorQuizListScreenState();
 }
 
-class _InstructorCourseListScreenState
-    extends State<InstructorCourseListScreen> {
+class _InstructorQuizListScreenState extends State<InstructorQuizListScreen> {
   final CourseService _courseService = CourseService();
 
-  CoursePage? _coursePage;
+  List<Quiz> _quizzes = [];
 
   bool _isLoading = true;
   String? _errorMessage;
@@ -28,20 +29,18 @@ class _InstructorCourseListScreenState
   @override
   void initState() {
     super.initState();
-    _loadCourses();
+    _loadQuizzes();
   }
 
-  Future<void> _loadCourses() async {
+  Future<void> _loadQuizzes() async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      final result = await _courseService.getInstructorCourses(
-        page: 1,
-        limit: 20,
-        status: 'PUBLISHED',
+      final quizzes = await _courseService.getInstructorQuizzes(
+        widget.courseId,
       );
 
       if (!mounted) {
@@ -49,7 +48,7 @@ class _InstructorCourseListScreenState
       }
 
       setState(() {
-        _coursePage = result;
+        _quizzes = quizzes;
         _isLoading = false;
       });
     } on ApiException catch (error) {
@@ -68,20 +67,20 @@ class _InstructorCourseListScreenState
 
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Unable to load your courses. Please try again.';
+        _errorMessage = 'Unable to load instructor quizzes. Please try again.';
       });
     }
   }
 
-  Widget _buildCourseCard(Course course) {
+  Widget _buildQuizCard(Quiz quiz) {
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
           Navigator.pushNamed(
             context,
-            '/instructor-assignment-list',
-            arguments: course.id,
+            '/instructor-quiz-detail',
+            arguments: quiz.id,
           );
         },
         child: Padding(
@@ -90,88 +89,72 @@ class _InstructorCourseListScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                course.title.isEmpty ? 'Course' : course.title,
+                quiz.title.isEmpty ? 'Quiz' : quiz.title,
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
               ),
-              const SizedBox(height: 8),
-              if (course.shortDescription.isNotEmpty)
+              if (quiz.description.isNotEmpty) ...[
+                const SizedBox(height: 8),
                 Text(
-                  course.shortDescription,
+                  quiz.description,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                 ),
+              ],
               const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: [
                   Chip(
-                    avatar: const Icon(
-                      Icons.public_outlined,
+                    avatar: Icon(
+                      quiz.isPublished
+                          ? Icons.public_outlined
+                          : Icons.drafts_outlined,
                       size: 18,
                     ),
                     label: Text(
-                      course.status.isEmpty ? 'PUBLISHED' : course.status,
+                      quiz.isPublished ? 'PUBLISHED' : 'DRAFT',
                     ),
                   ),
                   Chip(
                     avatar: const Icon(
-                      Icons.language_outlined,
+                      Icons.flag_outlined,
                       size: 18,
                     ),
                     label: Text(
-                      course.language.isEmpty
-                          ? 'Language unavailable'
-                          : course.language,
+                      'Pass: '
+                      '${quiz.passingScore.toStringAsFixed(0)}%',
                     ),
                   ),
                   Chip(
                     avatar: const Icon(
-                      Icons.people_outline,
+                      Icons.schedule_outlined,
                       size: 18,
                     ),
                     label: Text(
-                      '${course.totalEnrollments} enrollment(s)',
+                      '${quiz.timeLimitMinutes} min',
+                    ),
+                  ),
+                  Chip(
+                    avatar: const Icon(
+                      Icons.replay_outlined,
+                      size: 18,
+                    ),
+                    label: Text(
+                      '${quiz.maxAttempts} attempt(s)',
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                alignment: WrapAlignment.end,
-                children: [
-                  FilledButton.icon(
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/instructor-assignment-list',
-                        arguments: course.id,
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.assignment_outlined,
-                    ),
-                    label: const Text('View Assignments'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        '/instructor-quizzes',
-                        arguments: course.id,
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.quiz_outlined,
-                    ),
-                    label: const Text('View Quizzes'),
-                  ),
-                ],
-              ),
+              if (quiz.section.title.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(
+                  'Section: ${quiz.section.title}',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
             ],
           ),
         ),
@@ -191,30 +174,27 @@ class _InstructorCourseListScreenState
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: MessageWidget(
-            title: 'Unable to load courses',
+            title: 'Unable to load quizzes',
             message: _errorMessage!,
             type: MessageType.error,
             actionLabel: 'Retry',
-            onActionPressed: _loadCourses,
+            onActionPressed: _loadQuizzes,
           ),
         ),
       );
     }
 
-    final page = _coursePage;
-
-    if (page == null || page.courses.isEmpty) {
+    if (_quizzes.isEmpty) {
       return RefreshIndicator(
-        onRefresh: _loadCourses,
+        onRefresh: _loadQuizzes,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(24),
           children: const [
             SizedBox(height: 80),
             MessageWidget(
-              title: 'No published courses',
-              message:
-                  'You do not have any published courses with submissions available yet.',
+              title: 'No quizzes found',
+              message: 'This course does not have any quizzes yet.',
               type: MessageType.info,
             ),
           ],
@@ -223,7 +203,7 @@ class _InstructorCourseListScreenState
     }
 
     return RefreshIndicator(
-      onRefresh: _loadCourses,
+      onRefresh: _loadQuizzes,
       child: ListView.separated(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(
@@ -232,13 +212,13 @@ class _InstructorCourseListScreenState
           16,
           24,
         ),
-        itemCount: page.courses.length,
+        itemCount: _quizzes.length,
         separatorBuilder: (context, index) {
           return const SizedBox(height: 12);
         },
         itemBuilder: (context, index) {
-          return _buildCourseCard(
-            page.courses[index],
+          return _buildQuizCard(
+            _quizzes[index],
           );
         },
       ),
@@ -249,7 +229,22 @@ class _InstructorCourseListScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Published Courses'),
+        title: const Text('My Quizzes'),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final created = await Navigator.pushNamed(
+            context,
+            '/instructor-create-quiz',
+            arguments: widget.courseId,
+          );
+
+          if (created == true && mounted) {
+            _loadQuizzes();
+          }
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Create Quiz'),
       ),
       body: SafeArea(
         child: _buildContent(),

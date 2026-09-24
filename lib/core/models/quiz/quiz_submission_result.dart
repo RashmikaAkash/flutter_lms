@@ -20,8 +20,8 @@ class QuizSubmissionResult {
   final bool timedOut;
 
   factory QuizSubmissionResult.fromJson(
-      Map<String, dynamic> json,
-      ) {
+    Map<String, dynamic> json,
+  ) {
     final attemptJson = json['attempt'];
     final resultJson = json['result'];
 
@@ -60,8 +60,8 @@ class QuizSubmissionResult {
     }
 
     return double.tryParse(
-      value?.toString() ?? '',
-    ) ??
+          value?.toString() ?? '',
+        ) ??
         0;
   }
 }

@@ -423,8 +423,8 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                   child: Text(
                     'Curriculum',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                          fontWeight: FontWeight.w600,
+                        ),
                   ),
                 ),
                 TextButton(
@@ -478,6 +478,22 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                       Icons.assignment_outlined,
                     ),
                     label: const Text('Assignments'),
+                  ),
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.pushNamed(
+                        context,
+                        '/course-reviews',
+                        arguments: {
+                          'courseId': _course!.id,
+                          'courseTitle': _course!.title,
+                          'isEnrolled': _currentEnrollmentId != null &&
+                              _currentEnrollmentId!.isNotEmpty,
+                        },
+                      );
+                    },
+                    icon: const Icon(Icons.rate_review_outlined),
+                    label: const Text('Reviews'),
                   ),
                 ],
               ),

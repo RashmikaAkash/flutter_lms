@@ -10,34 +10,34 @@ class InstructorAssignmentSubmissionPage {
   final InstructorSubmissionPagination pagination;
 
   factory InstructorAssignmentSubmissionPage.fromJson(
-      Map<String, dynamic> json,
-      ) {
+    Map<String, dynamic> json,
+  ) {
     final rawSubmissions = json['submissions'];
     final rawPagination = json['pagination'];
 
     return InstructorAssignmentSubmissionPage(
       submissions: rawSubmissions is List
           ? rawSubmissions
-          .whereType<Map>()
-          .map(
-            (item) => InstructorAssignmentSubmission.fromJson(
-          Map<String, dynamic>.from(item),
-        ),
-      )
-          .toList()
+              .whereType<Map>()
+              .map(
+                (item) => InstructorAssignmentSubmission.fromJson(
+                  Map<String, dynamic>.from(item),
+                ),
+              )
+              .toList()
           : <InstructorAssignmentSubmission>[],
       pagination: rawPagination is Map
           ? InstructorSubmissionPagination.fromJson(
-        Map<String, dynamic>.from(rawPagination),
-      )
+              Map<String, dynamic>.from(rawPagination),
+            )
           : const InstructorSubmissionPagination(
-        page: 1,
-        limit: 20,
-        totalItems: 0,
-        totalPages: 1,
-        hasNextPage: false,
-        hasPreviousPage: false,
-      ),
+              page: 1,
+              limit: 20,
+              totalItems: 0,
+              totalPages: 1,
+              hasNextPage: false,
+              hasPreviousPage: false,
+            ),
     );
   }
 }
@@ -60,8 +60,8 @@ class InstructorSubmissionPagination {
   final bool hasPreviousPage;
 
   factory InstructorSubmissionPagination.fromJson(
-      Map<String, dynamic> json,
-      ) {
+    Map<String, dynamic> json,
+  ) {
     return InstructorSubmissionPagination(
       page: _parseInt(json['page']),
       limit: _parseInt(json['limit']),
@@ -82,8 +82,8 @@ class InstructorSubmissionPagination {
     }
 
     return int.tryParse(
-      value?.toString() ?? '',
-    ) ??
+          value?.toString() ?? '',
+        ) ??
         0;
   }
 }

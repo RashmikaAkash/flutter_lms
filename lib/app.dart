@@ -26,6 +26,15 @@ import 'screens/student_assignment_detail_screen.dart';
 import 'screens/instructor_assignment_submissions_screen.dart';
 import 'screens/instructor_course_list_screen.dart';
 import 'screens/instructor_assignment_list_screen.dart';
+import 'screens/instructor_quiz_list_screen.dart';
+import 'screens/instructor_quiz_detail_screen.dart';
+import 'screens/instructor_quiz_attempts_screen.dart';
+import 'core/models/quiz/quiz_attempt.dart';
+import 'screens/instructor_quiz_attempt_review_screen.dart';
+import 'screens/instructor_create_quiz_screen.dart';
+import 'screens/instructor_create_assignment_screen.dart';
+import 'screens/course_reviews_screen.dart';
+import 'screens/notifications_screen.dart';
 
 class FlutterLmsApp extends StatelessWidget {
   const FlutterLmsApp({super.key});
@@ -302,6 +311,24 @@ class FlutterLmsApp extends StatelessWidget {
                 : null,
           );
         },
+        '/course-reviews': (context) {
+          final arguments = ModalRoute.of(context)?.settings.arguments;
+          if (arguments is! Map<String, dynamic>) {
+            return const CourseBrowseScreen();
+          }
+          final courseId = arguments['courseId'];
+          final courseTitle = arguments['courseTitle'];
+          final isEnrolled = arguments['isEnrolled'];
+          if (courseId is! String || courseId.isEmpty) {
+            return const CourseBrowseScreen();
+          }
+          return CourseReviewsScreen(
+            courseId: courseId,
+            courseTitle: courseTitle is String ? courseTitle : 'Course',
+            isEnrolled: isEnrolled == true,
+          );
+        },
+        '/notifications': (context) => const NotificationsScreen(),
         '/course-curriculum': (context) {
           final arguments = ModalRoute.of(context)?.settings.arguments;
 
@@ -417,6 +444,83 @@ class FlutterLmsApp extends StatelessWidget {
           }
 
           return InstructorAssignmentListScreen(
+            courseId: courseId,
+          );
+        },
+        '/instructor-create-assignment': (context) {
+          final courseId =
+              ModalRoute.of(context)?.settings.arguments as String?;
+
+          if (courseId == null || courseId.isEmpty) {
+            return const InstructorDashboard();
+          }
+
+          return InstructorCreateAssignmentScreen(
+            courseId: courseId,
+          );
+        },
+        '/instructor-quizzes': (context) {
+          final courseId =
+              ModalRoute.of(context)?.settings.arguments as String?;
+
+          if (courseId == null || courseId.isEmpty) {
+            return const InstructorDashboard();
+          }
+
+          return InstructorQuizListScreen(
+            courseId: courseId,
+          );
+        },
+        '/instructor-quiz-detail': (context) {
+          final quizId = ModalRoute.of(context)?.settings.arguments as String?;
+
+          if (quizId == null || quizId.isEmpty) {
+            return const InstructorDashboard();
+          }
+
+          return InstructorQuizDetailScreen(
+            quizId: quizId,
+          );
+        },
+        '/instructor-quiz-attempts': (context) {
+          final quizId = ModalRoute.of(context)?.settings.arguments as String?;
+
+          if (quizId == null || quizId.isEmpty) {
+            return const InstructorDashboard();
+          }
+
+          return InstructorQuizAttemptsScreen(
+            quizId: quizId,
+          );
+        },
+        '/instructor-quiz-attempt-review': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments;
+
+          if (args is! Map<String, dynamic>) {
+            return const InstructorDashboard();
+          }
+
+          final quizId = args['quizId']?.toString() ?? '';
+          final attempt = args['attempt'];
+
+          if (quizId.isEmpty || attempt is! QuizAttempt) {
+            return const InstructorDashboard();
+          }
+
+          return InstructorQuizAttemptReviewScreen(
+            quizId: quizId,
+            attempt: attempt,
+          );
+        },
+        '/instructor-create-quiz': (context) {
+          final courseId =
+              ModalRoute.of(context)?.settings.arguments as String?;
+
+          if (courseId == null || courseId.isEmpty) {
+            return const InstructorDashboard();
+          }
+
+          return InstructorCreateQuizScreen(
             courseId: courseId,
           );
         },

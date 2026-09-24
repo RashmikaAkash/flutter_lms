@@ -152,6 +152,21 @@ class _InstructorAssignmentListScreenState
                     ),
                 ],
               ),
+              if (!assignment.isPublished) ...[
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      _publishAssignment(assignment);
+                    },
+                    icon: const Icon(
+                      Icons.publish_outlined,
+                    ),
+                    label: const Text('Publish Assignment'),
+                  ),
+                ),
+              ],
               const SizedBox(height: 12),
               Align(
                 alignment: Alignment.centerRight,
@@ -174,6 +189,82 @@ class _InstructorAssignmentListScreenState
         ),
       ),
     );
+  }
+
+  Future<void> _publishAssignment(
+    Assignment assignment,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Publish Assignment'),
+          content: Text(
+            'Are you sure you want to publish "${assignment.title}"?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: const Text('Publish'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) {
+      return;
+    }
+
+    try {
+      await _courseService.publishInstructorAssignment(
+        assignment.id,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Assignment published successfully.',
+          ),
+        ),
+      );
+
+      await _loadAssignments();
+    } on ApiException catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Unable to publish assignment. Please try again.',
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildContent() {
@@ -244,6 +335,21 @@ class _InstructorAssignmentListScreenState
     return Scaffold(
       appBar: AppBar(
         title: const Text('Course Assignments'),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final created = await Navigator.pushNamed(
+            context,
+            '/instructor-create-assignment',
+            arguments: widget.courseId,
+          );
+
+          if (created == true && mounted) {
+            _loadAssignments();
+          }
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Create Assignment'),
       ),
       body: SafeArea(
         child: _buildContent(),

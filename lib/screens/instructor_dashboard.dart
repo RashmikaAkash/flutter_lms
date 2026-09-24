@@ -5,6 +5,7 @@ import '../core/errors/api_exception.dart';
 import '../widgets/dashboard_card.dart';
 import '../widgets/dashboard_nav_card.dart';
 import '../widgets/section_header.dart';
+import 'notifications_screen.dart';
 
 class InstructorDashboard extends StatefulWidget {
   const InstructorDashboard({super.key});
@@ -112,11 +113,7 @@ class _InstructorDashboardState extends State<InstructorDashboard> {
       appBar: AppBar(
         title: const Text('Instructor Dashboard'),
         actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.notifications_outlined),
-            tooltip: 'Notifications',
-          ),
+          const NotificationsAction(),
           IconButton(
             onPressed: () {
               Navigator.pushNamed(context, '/profile');

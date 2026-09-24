@@ -63,8 +63,8 @@ class CourseEnrollment {
     }
 
     return double.tryParse(
-      value?.toString() ?? '',
-    ) ??
+          value?.toString() ?? '',
+        ) ??
         0;
   }
 

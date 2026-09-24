@@ -8,6 +8,7 @@ import '../widgets/dashboard_card.dart';
 import '../widgets/dashboard_nav_card.dart';
 import '../widgets/message_widget.dart';
 import '../widgets/section_header.dart';
+import 'notifications_screen.dart';
 
 class StudentDashboard extends StatefulWidget {
   const StudentDashboard({super.key});
@@ -420,7 +421,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
               title: 'Notifications',
               subtitle: 'Check recent notifications',
               icon: Icons.notifications_outlined,
-              onTap: () {},
+              onTap: () => _openAndRefresh('/notifications'),
             ),
           ],
         ),
@@ -434,11 +435,7 @@ class _StudentDashboardState extends State<StudentDashboard> {
       appBar: AppBar(
         title: const Text('Student Dashboard'),
         actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.notifications_outlined),
-            tooltip: 'Notifications',
-          ),
+          const NotificationsAction(),
           IconButton(
             onPressed: () {
               Navigator.pushNamed(

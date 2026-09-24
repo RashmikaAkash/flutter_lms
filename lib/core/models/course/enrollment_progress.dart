@@ -18,13 +18,13 @@ class EnrollmentProgress {
       ),
       lessons: rawLessons is List
           ? rawLessons
-          .whereType<Map>()
-          .map(
-            (item) => EnrollmentProgressLesson.fromJson(
-          Map<String, dynamic>.from(item),
-        ),
-      )
-          .toList()
+              .whereType<Map>()
+              .map(
+                (item) => EnrollmentProgressLesson.fromJson(
+                  Map<String, dynamic>.from(item),
+                ),
+              )
+              .toList()
           : <EnrollmentProgressLesson>[],
     );
   }
@@ -54,8 +54,8 @@ class EnrollmentProgressEnrollment {
   final DateTime? lastAccessedAt;
 
   factory EnrollmentProgressEnrollment.fromJson(
-      Map<String, dynamic> json,
-      ) {
+    Map<String, dynamic> json,
+  ) {
     return EnrollmentProgressEnrollment(
       id: json['id']?.toString() ?? '',
       studentId: json['studentId']?.toString() ?? '',
@@ -116,8 +116,8 @@ class EnrollmentProgressLesson {
   final EnrollmentLessonProgress? progress;
 
   factory EnrollmentProgressLesson.fromJson(
-      Map<String, dynamic> json,
-      ) {
+    Map<String, dynamic> json,
+  ) {
     final rawSection = json['sectionId'];
 
     final sectionMap = rawSection is Map
@@ -136,8 +136,8 @@ class EnrollmentProgressLesson {
       order: _parseInt(json['order']),
       progress: rawProgress is Map
           ? EnrollmentLessonProgress.fromJson(
-        Map<String, dynamic>.from(rawProgress),
-      )
+              Map<String, dynamic>.from(rawProgress),
+            )
           : null,
     );
   }
@@ -171,8 +171,8 @@ class EnrollmentProgressSection {
   final int order;
 
   factory EnrollmentProgressSection.fromJson(
-      Map<String, dynamic> json,
-      ) {
+    Map<String, dynamic> json,
+  ) {
     return EnrollmentProgressSection(
       id: json['id']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
@@ -203,8 +203,8 @@ class EnrollmentLessonProgress {
   final DateTime? lastAccessedAt;
 
   factory EnrollmentLessonProgress.fromJson(
-      Map<String, dynamic> json,
-      ) {
+    Map<String, dynamic> json,
+  ) {
     return EnrollmentLessonProgress(
       status: json['status']?.toString() ?? '',
       startedAt: _parseDateTime(json['startedAt']),

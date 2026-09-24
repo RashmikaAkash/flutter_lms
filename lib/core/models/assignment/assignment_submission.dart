@@ -11,7 +11,6 @@ class AssignmentSubmission {
     required this.updatedAt,
     this.fileUrl,
     this.fileName,
-
   });
 
   final String id;

@@ -44,22 +44,32 @@ class QuizQuestion {
     required this.options,
     required this.marks,
     required this.order,
+    this.quizId,
+    this.correctOptionIds = const [],
+    this.createdAt,
+    this.updatedAt,
   });
 
   final String id;
+  final String? quizId;
   final String questionText;
   final String questionType;
   final List<QuizOption> options;
+  final List<String> correctOptionIds;
   final int marks;
   final int order;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   factory QuizQuestion.fromJson(
     Map<String, dynamic> json,
   ) {
     final rawOptions = json['options'];
+    final rawCorrectOptionIds = json['correctOptionIds'];
 
     return QuizQuestion(
       id: json['id']?.toString() ?? '',
+      quizId: json['quizId']?.toString(),
       questionText: json['questionText']?.toString() ?? '',
       questionType: json['questionType']?.toString() ?? '',
       options: rawOptions is List
@@ -72,8 +82,13 @@ class QuizQuestion {
               )
               .toList()
           : <QuizOption>[],
+      correctOptionIds: rawCorrectOptionIds is List
+          ? rawCorrectOptionIds.map((item) => item.toString()).toList()
+          : const [],
       marks: _parseInt(json['marks']),
       order: _parseInt(json['order']),
+      createdAt: _parseDate(json['createdAt']),
+      updatedAt: _parseDate(json['updatedAt']),
     );
   }
 
@@ -90,6 +105,14 @@ class QuizQuestion {
           value?.toString() ?? '',
         ) ??
         0;
+  }
+
+  static DateTime? _parseDate(dynamic value) {
+    if (value is! String || value.isEmpty) {
+      return null;
+    }
+
+    return DateTime.tryParse(value);
   }
 }
 
