@@ -5,6 +5,7 @@ import '../core/course/course_service.dart';
 import '../core/errors/api_exception.dart';
 import '../core/models/course/course.dart';
 import 'instructor_create_course_screen.dart';
+import 'instructor_course_setup_screen.dart';
 import '../widgets/message_widget.dart';
 
 class InstructorCourseListScreen extends StatefulWidget {
@@ -25,6 +26,7 @@ class _InstructorCourseListScreenState
 
   bool _isLoading = true;
   String? _errorMessage;
+  String? _openingSetupCourseId;
 
   @override
   void initState() {
@@ -74,18 +76,35 @@ class _InstructorCourseListScreenState
   }
 
   Future<void> _openCreateCourse() async {
-    final created = await Navigator.push<bool>(
+    final created = await Navigator.push<Course>(
       context,
-      MaterialPageRoute<bool>(
+      MaterialPageRoute<Course>(
         builder: (context) => const InstructorCreateCourseScreen(),
       ),
     );
 
-    if (created != true || !mounted) {
+    if (created == null || !mounted) {
       return;
     }
 
     await _loadCourses();
+    if (mounted) await _openCourseSetup(created.id);
+  }
+
+  Future<void> _openCourseSetup(String courseId) async {
+    if (_openingSetupCourseId != null) return;
+    setState(() => _openingSetupCourseId = courseId);
+    try {
+      final completed = await Navigator.push<bool>(
+        context,
+        MaterialPageRoute<bool>(
+          builder: (context) => InstructorCourseSetupScreen(courseId: courseId),
+        ),
+      );
+      if (completed == true && mounted) await _loadCourses();
+    } finally {
+      if (mounted) setState(() => _openingSetupCourseId = null);
+    }
   }
 
   Widget _buildCourseCard(Course course) {
@@ -161,6 +180,29 @@ class _InstructorCourseListScreenState
                 runSpacing: 8,
                 alignment: WrapAlignment.end,
                 children: [
+                  if (course.status == 'DRAFT')
+                    FilledButton.icon(
+                      onPressed: _openingSetupCourseId == null
+                          ? () => _openCourseSetup(course.id)
+                          : null,
+                      icon: _openingSetupCourseId == course.id
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.playlist_add_check_outlined),
+                      label: Text(
+                        _openingSetupCourseId == course.id
+                            ? 'Opening setup...'
+                            : 'Continue setup',
+                      ),
+                    )
+                  else if (course.status == 'PUBLISHED')
+                    const Chip(
+                      avatar: Icon(Icons.check_circle_outline, size: 18),
+                      label: Text('Published'),
+                    ),
                   FilledButton.icon(
                     onPressed: () {
                       Navigator.pushNamed(

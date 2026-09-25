@@ -25,6 +25,25 @@ import 'package:mime/mime.dart';
 import '../models/assignment/assignment_submission.dart';
 import '../models/assignment/instructor_assignment_submission_page.dart';
 
+Map<String, dynamic> _responseEntity(
+  dynamic responseData,
+  String entityKey,
+  String unavailableMessage,
+) {
+  if (responseData is! Map) {
+    throw ApiException(message: unavailableMessage);
+  }
+  final data = responseData['data'];
+  if (data is! Map) {
+    throw ApiException(message: unavailableMessage);
+  }
+  final entity = data[entityKey];
+  if (entity is! Map) {
+    throw ApiException(message: unavailableMessage);
+  }
+  return Map<String, dynamic>.from(entity);
+}
+
 class CourseService {
   CourseService({
     ApiClient? apiClient,
@@ -364,7 +383,18 @@ class CourseService {
     );
   }
 
-  Future<void> createInstructorCourse({
+  Future<Course> getInstructorCourse(String courseId) async {
+    final response = await _apiClient.get(
+      '/api/v1/courses/instructor/me/$courseId',
+      requiresAuth: true,
+    );
+    return Course.fromJson(
+      _responseEntity(
+          response.data, 'course', 'Course details are unavailable'),
+    );
+  }
+
+  Future<Course> createInstructorCourse({
     required String categoryId,
     required String title,
     required String shortDescription,
@@ -375,7 +405,7 @@ class CourseService {
     required List<String> learningOutcomes,
     required List<String> targetAudience,
   }) async {
-    await _apiClient.post(
+    final response = await _apiClient.post(
       '/api/v1/courses',
       data: {
         'categoryId': categoryId,
@@ -398,6 +428,103 @@ class CourseService {
             .toList(),
       },
       requiresAuth: true,
+    );
+    return Course.fromJson(
+      _responseEntity(
+          response.data, 'course', 'Created course was not returned'),
+    );
+  }
+
+  Future<CourseSection> createInstructorSection({
+    required String courseId,
+    required String title,
+    String? description,
+    bool isPublished = true,
+  }) async {
+    final response = await _apiClient.post(
+      '/api/v1/courses/$courseId/sections',
+      data: {
+        'title': title.trim(),
+        if (description != null && description.trim().isNotEmpty)
+          'description': description.trim(),
+        'isPublished': isPublished,
+      },
+      requiresAuth: true,
+    );
+    return CourseSection.fromJson(
+      _responseEntity(
+          response.data, 'section', 'Created section was not returned'),
+    );
+  }
+
+  Future<CourseSection> publishInstructorSection(String sectionId) async {
+    final response = await _apiClient.patch(
+      '/api/v1/sections/$sectionId',
+      data: const {'isPublished': true},
+      requiresAuth: true,
+    );
+    final section = CourseSection.fromJson(
+      _responseEntity(
+          response.data, 'section', 'Updated section was not returned'),
+    );
+    if (!section.isPublished) {
+      throw const ApiException(message: 'The section was not published.');
+    }
+    return section;
+  }
+
+  Future<CourseLesson> createInstructorTextLesson({
+    required String sectionId,
+    required String title,
+    required String textContent,
+    String? description,
+    int durationMinutes = 0,
+    bool isPreview = false,
+  }) async {
+    final response = await _apiClient.post(
+      '/api/v1/sections/$sectionId/lessons',
+      data: {
+        'title': title.trim(),
+        'lessonType': 'TEXT',
+        if (description != null && description.trim().isNotEmpty)
+          'description': description.trim(),
+        'textContent': textContent.trim(),
+        'durationMinutes': durationMinutes,
+        'isPreview': isPreview,
+        'isPublished': false,
+      },
+      requiresAuth: true,
+    );
+    return CourseLesson.fromJson(
+      _responseEntity(
+          response.data, 'lesson', 'Created lesson was not returned'),
+    );
+  }
+
+  Future<CourseLesson> publishInstructorLesson(String lessonId) async {
+    final response = await _apiClient.patch(
+      '/api/v1/lessons/$lessonId',
+      data: const {'isPublished': true},
+      requiresAuth: true,
+    );
+    final lesson = CourseLesson.fromJson(
+      _responseEntity(
+          response.data, 'lesson', 'Updated lesson was not returned'),
+    );
+    if (!lesson.isPublished) {
+      throw const ApiException(message: 'The lesson was not published.');
+    }
+    return lesson;
+  }
+
+  Future<Course> publishInstructorCourse(String courseId) async {
+    final response = await _apiClient.patch(
+      '/api/v1/courses/$courseId/publish',
+      requiresAuth: true,
+    );
+    return Course.fromJson(
+      _responseEntity(
+          response.data, 'course', 'Published course was not returned'),
     );
   }
 

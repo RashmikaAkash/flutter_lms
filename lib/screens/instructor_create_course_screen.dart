@@ -133,7 +133,7 @@ class _InstructorCreateCourseScreenState
     setState(() => _isSubmitting = true);
 
     try {
-      await _courseService.createInstructorCourse(
+      final course = await _courseService.createInstructorCourse(
         categoryId: categoryId,
         title: _titleController.text,
         shortDescription: _shortDescriptionController.text,
@@ -164,7 +164,7 @@ class _InstructorCreateCourseScreenState
           ],
         ),
       );
-      if (mounted) Navigator.pop(context, true);
+      if (mounted) Navigator.pop(context, course);
     } on ApiException catch (error) {
       if (!mounted) {
         return;
@@ -317,7 +317,8 @@ class _InstructorCreateCourseScreenState
           .toList(),
       onChanged:
           _isSubmitting ? null : (value) => setState(() => _categoryId = value),
-      validator: (value) => _dropdownError('categoryId', value, 'Select a category'),
+      validator: (value) =>
+          _dropdownError('categoryId', value, 'Select a category'),
     );
   }
 
@@ -461,7 +462,8 @@ class _InstructorCreateCourseScreenState
                             hintText: 'Give your course a clear title',
                             prefixIcon: Icon(Icons.title_outlined),
                           ),
-                          validator: (value) => _fieldError('title', value, 'Title'),
+                          validator: (value) =>
+                              _fieldError('title', value, 'Title'),
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
@@ -476,7 +478,9 @@ class _InstructorCreateCourseScreenState
                             alignLabelWithHint: true,
                           ),
                           validator: (value) => _fieldError(
-                            'shortDescription', value, 'Short description',
+                            'shortDescription',
+                            value,
+                            'Short description',
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -492,7 +496,8 @@ class _InstructorCreateCourseScreenState
                             hintText: 'Describe the course in more detail',
                             alignLabelWithHint: true,
                           ),
-                          validator: (value) => _fieldError('description', value, 'Description'),
+                          validator: (value) =>
+                              _fieldError('description', value, 'Description'),
                         ),
                       ],
                     ),
@@ -525,7 +530,8 @@ class _InstructorCreateCourseScreenState
                           onChanged: _isSubmitting
                               ? null
                               : (value) => setState(() => _level = value),
-                          validator: (value) => _dropdownError('level', value, 'Select a course level'),
+                          validator: (value) => _dropdownError(
+                              'level', value, 'Select a course level'),
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
@@ -538,7 +544,8 @@ class _InstructorCreateCourseScreenState
                             hintText: 'Enter the course language',
                             prefixIcon: Icon(Icons.language_outlined),
                           ),
-                          validator: (value) => _fieldError('language', value, 'Language'),
+                          validator: (value) =>
+                              _fieldError('language', value, 'Language'),
                         ),
                       ],
                     ),
