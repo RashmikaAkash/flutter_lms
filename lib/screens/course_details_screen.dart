@@ -395,7 +395,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
   Widget _buildPlaceholderHeader() {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: AspectRatio(
         aspectRatio: 16 / 9,
